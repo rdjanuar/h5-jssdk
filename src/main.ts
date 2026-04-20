@@ -56,18 +56,6 @@ if (root && path) {
          window.WeixinJSBridge.invoke('navigateTo', { url: redirectPath });
          return;
       }
-
-      if (sdk && sdk.miniProgram) {
-        sdk.miniProgram.getEnv((res: any) => {
-          if (res.miniprogram) {
-            attemptRedirect();
-          } else {
-            attemptRedirect();
-          }
-        });
-      } else {
-        alert('JSSDK loaded, but wx.miniProgram is undefined. Are you inside TCMPP web-view?');
-      }
     }, 100);
   };
 
@@ -89,6 +77,7 @@ if (root && path) {
     
     if (timeLeft <= 0) {
       clearInterval(timer);
+      attemptRedirect()
       if (loadingMsgEl) {
         loadingMsgEl.style.display = 'none';
       }
