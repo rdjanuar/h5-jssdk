@@ -18,8 +18,8 @@ if (root && path) {
   const redirectPath = decodeURIComponent(path);
 
   const attemptRedirect = () => {
-    if (window.wx && window.wx.miniProgram) {
-      window.wx.miniProgram.navigateTo({
+    if (wx && wx.miniProgram) {
+      wx.miniProgram.navigateTo({
         url: redirectPath,
         success: () => console.log('Redirect success'),
         fail: (err: any) => console.error('Redirect failed', err)
@@ -31,7 +31,7 @@ if (root && path) {
 
   script.onload = () => {
     console.log('TCMPP JSSDK loaded successfully.');
-    window.wx.miniProgram.getEnv((res: any) => {
+    wx.miniProgram.getEnv((res: any) => {
       if (res.miniprogram) {
         attemptRedirect();
       }
