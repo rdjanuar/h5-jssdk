@@ -2,38 +2,48 @@ const urlParams = new URLSearchParams(window.location.search);
 const root = urlParams.get('root');
 const path = urlParams.get('path');
 
-
-declare const wx: any
-
+declare global {
+  interface Window {
+    wx: any;
+    tcsas: any;
+  }
+}
 
 if (root && path) {
   console.log('Loading TCMPP JSSDK...');
   const script = document.createElement('script');
-  script.src = 'https://tencentcloud.github.io/tcmpp-demo-miniprogram/jssdk/tcmpp-jssdk-1.0.0.js';
+  script.src = 'https://tcmpp-team.github.io/mini-programs/jssdk/tcsas-jssdk-1.0.1.js';
   script.async = true;
-  document.body.appendChild(script);
+  document.head.appendChild(script);
 
-  const redirectPath = decodeURIComponent(path);
+  let redirectPath = decodeURIComponent(path);
+  if (redirectPath.startsWith('"') && redirectPath.endsWith('"')) {
+    redirectPath = redirectPath.slice(1, -1);
+  }
 
   const attemptRedirect = () => {
-    if (wx && wx.miniProgram) {
-      wx.miniProgram.navigateTo({
+    const sdk = window.wx || window.tcsas;
+    if (sdk && sdk.miniProgram) {
+      sdk.miniProgram.navigateTo({
         url: redirectPath,
-        success: () => console.log('Redirect success'),
-        fail: (err: any) => console.error('Redirect failed', err)
+        success: () => console.log('Redirect success to', redirectPath),
+        fail: (err: any) => console.error('Redirect failed to', redirectPath, err)
       });
     } else {
-      console.error('wx.miniProgram is not available');
+      console.error('SDK (wx/tcsas) .miniProgram is not available on window');
     }
   };
 
   script.onload = () => {
     console.log('TCMPP JSSDK loaded successfully.');
-    wx.miniProgram.getEnv((res: any) => {
-      if (res.miniprogram) {
-        attemptRedirect();
-      }
-    });
+    const sdk = window.wx || window.tcsas;
+    if (sdk && sdk.miniProgram) {
+      sdk.miniProgram.getEnv((res: any) => {
+        if (res.miniprogram) {
+          attemptRedirect();
+        }
+      });
+    }
   };
 
   script.onerror = () => {
@@ -47,10 +57,12 @@ if (root && path) {
   const timer = setInterval(() => {
     timeLeft -= 1;
     if (countdownEl) {
+      console.log(countdownEl)
       countdownEl.innerText = timeLeft.toString();
     }
     
     if (timeLeft <= 0) {
+      attemptRedirect()
       clearInterval(timer);
       if (loadingMsgEl) {
         loadingMsgEl.style.display = 'none';
@@ -58,9 +70,9 @@ if (root && path) {
 
       const btn = document.createElement('button');
       btn.innerText = 'Kembali ke Aplikasi';
-      btn.className = 'counter';
+      btn.className = 'counter'; 
       btn.style.cursor = 'pointer';
-      btn.style.marginBottom = '0'; 
+      btn.style.marginBottom = '0';
 
       btn.onclick = () => attemptRedirect();
       
