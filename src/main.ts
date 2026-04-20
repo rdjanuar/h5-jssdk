@@ -6,16 +6,13 @@ declare global {
   interface Window {
     wx: any;
     tcsas: any;
+    WeixinJSBridge: any;
   }
 }
 
 if (root && path) {
   console.log('Loading TCMPP JSSDK...');
-  const script = document.createElement('script');
-  script.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
-  script.async = true;
-  document.head.appendChild(script);
-
+  
   let redirectPath = decodeURIComponent(path);
   if (redirectPath.startsWith('"') && redirectPath.endsWith('"')) {
     redirectPath = redirectPath.slice(1, -1);
@@ -26,30 +23,47 @@ if (root && path) {
     if (sdk && sdk.miniProgram) {
       sdk.miniProgram.navigateTo({
         url: redirectPath,
-        success: () => alert(`Redirect success to ${redirectPath}`),
-        fail: (err: any) => alert(`Redirect failed to ${err}`)
+        success: () => alert('Redirect success to ' + redirectPath),
+        fail: (err: any) => alert('Redirect failed: ' + JSON.stringify(err))
       });
     } else {
-      console.error('SDK (wx/tcsas) .miniProgram is not available on window');
+      alert('SDK (wx/tcsas) .miniProgram is not available on window');
     }
   };
+
+  const script = document.createElement('script');
+  script.src = 'https://tcmpp-team.github.io/mini-programs/jssdk/tcsas-jssdk-1.0.1.js';
+  script.async = true;
 
   script.onload = () => {
     console.log('TCMPP JSSDK loaded successfully.');
-    alert('sdl loaded')
-    const sdk = window.wx || window.tcsas;
-    if (sdk && sdk.miniProgram) {
-      sdk.miniProgram.getEnv((res: any) => {
-        if (res.miniprogram) {
-          attemptRedirect();
-        }
-      });
-    }
+    setTimeout(() => {
+      const sdk = window.wx || window.tcsas;
+      
+      if (!sdk && window.WeixinJSBridge) {
+         window.WeixinJSBridge.invoke('navigateTo', { url: redirectPath });
+         return;
+      }
+
+      if (sdk && sdk.miniProgram) {
+        sdk.miniProgram.getEnv((res: any) => {
+          if (res.miniprogram) {
+            attemptRedirect();
+          } else {
+            attemptRedirect();
+          }
+        });
+      } else {
+        alert('JSSDK loaded, but wx.miniProgram is undefined. Are you inside TCMPP web-view?');
+      }
+    }, 100);
   };
 
   script.onerror = () => {
-    console.error('Failed to load TCMPP JSSDK.');
+    alert('Failed to load TCMPP JSSDK script from network.');
   };
+
+  document.head.appendChild(script);
 
   let timeLeft = 3;
   const countdownEl = document.getElementById('countdown');
@@ -58,12 +72,10 @@ if (root && path) {
   const timer = setInterval(() => {
     timeLeft -= 1;
     if (countdownEl) {
-      console.log(countdownEl)
       countdownEl.innerText = timeLeft.toString();
     }
     
     if (timeLeft <= 0) {
-      attemptRedirect()
       clearInterval(timer);
       if (loadingMsgEl) {
         loadingMsgEl.style.display = 'none';
@@ -73,7 +85,7 @@ if (root && path) {
       btn.innerText = 'Kembali ke Aplikasi';
       btn.className = 'counter'; 
       btn.style.cursor = 'pointer';
-      btn.style.marginBottom = '0';
+      btn.style.marginBottom = '0'; 
 
       btn.onclick = () => attemptRedirect();
       
