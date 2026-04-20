@@ -12,7 +12,7 @@ declare global {
 if (root && path) {
   console.log('Loading TCMPP JSSDK...');
   const script = document.createElement('script');
-  script.src = 'https://tcmpp-team.github.io/mini-programs/jssdk/tcsas-jssdk-1.0.1.js';
+  script.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
   script.async = true;
   document.head.appendChild(script);
 
@@ -26,8 +26,8 @@ if (root && path) {
     if (sdk && sdk.miniProgram) {
       sdk.miniProgram.navigateTo({
         url: redirectPath,
-        success: () => console.log('Redirect success to', redirectPath),
-        fail: (err: any) => console.error('Redirect failed to', redirectPath, err)
+        success: () => alert(`Redirect success to ${redirectPath}`),
+        fail: (err: any) => alert(`Redirect failed to ${err}`)
       });
     } else {
       console.error('SDK (wx/tcsas) .miniProgram is not available on window');
@@ -36,6 +36,7 @@ if (root && path) {
 
   script.onload = () => {
     console.log('TCMPP JSSDK loaded successfully.');
+    alert('sdl loaded')
     const sdk = window.wx || window.tcsas;
     if (sdk && sdk.miniProgram) {
       sdk.miniProgram.getEnv((res: any) => {
