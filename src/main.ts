@@ -45,17 +45,17 @@ if (root && path) {
   setTimeout(() => {
     const btn = document.createElement('button');
     btn.innerText = 'Kembali ke Aplikasi';
-    btn.style.marginTop = '20px';
-    btn.style.padding = '10px 20px';
-    btn.style.fontSize = '16px';
+    btn.className = 'counter';
     btn.style.cursor = 'pointer';
-    btn.style.backgroundColor = '#007aff';
-    btn.style.color = '#fff';
-    btn.style.border = 'none';
-    btn.style.borderRadius = '5px';
+    btn.style.marginBottom = '0'; 
 
     btn.onclick = () => attemptRedirect();
     
-    document.body.appendChild(btn);
+    const container = document.getElementById('app-container');
+    if (container) {
+      container.appendChild(btn);
+    } else {
+      document.body.appendChild(btn);
+    }
   }, 3000);
 }
