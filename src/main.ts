@@ -21,10 +21,22 @@ if (root && path) {
   const attemptRedirect = () => {
     const sdk = window.wx || window.tcsas;
     if (sdk && sdk.miniProgram) {
-      sdk.miniProgram.navigateTo({
+      sdk.miniProgram.switchTab({
         url: redirectPath,
-        success: () => alert('Redirect success to ' + redirectPath),
-        fail: (err: any) => alert('Redirect failed: ' + JSON.stringify(err))
+        success: () => console.log('switchTab success to', redirectPath),
+        fail: () => {
+          sdk.miniProgram.reLaunch({
+            url: redirectPath,
+            success: () => console.log('reLaunch success to', redirectPath),
+            fail: () => {
+              sdk.miniProgram.navigateTo({
+                url: redirectPath,
+                success: () => console.log('navigateTo success to', redirectPath),
+                fail: (err: any) => alert('All redirects failed: ' + JSON.stringify(err))
+              });
+            }
+          });
+        }
       });
     } else {
       alert('SDK (wx/tcsas) .miniProgram is not available on window');
