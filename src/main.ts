@@ -2,11 +2,9 @@ const urlParams = new URLSearchParams(window.location.search);
 const root = urlParams.get('root');
 const path = urlParams.get('path');
 
-declare global {
-  interface Window {
-    wx: any;
-  }
-}
+
+declare const wx: any
+
 
 if (root && path) {
   console.log('Loading TCMPP JSSDK...');
