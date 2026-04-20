@@ -11,7 +11,7 @@ declare global {
 if (root && path) {
   console.log('Loading TCMPP JSSDK...');
   const script = document.createElement('script');
-  script.src = 'https://tcmpp-team.github.io/mini-programs/jssdk/tcsas-jssdk-1.0.1.js';
+  script.src = 'https://tencentcloud.github.io/tcmpp-demo-miniprogram/jssdk/tcmpp-jssdk-1.0.0.js';
   script.async = true;
   document.body.appendChild(script);
 
