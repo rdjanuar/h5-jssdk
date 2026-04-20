@@ -42,20 +42,36 @@ if (root && path) {
     console.error('Failed to load TCMPP JSSDK.');
   };
 
-  setTimeout(() => {
-    const btn = document.createElement('button');
-    btn.innerText = 'Kembali ke Aplikasi';
-    btn.className = 'counter';
-    btn.style.cursor = 'pointer';
-    btn.style.marginBottom = '0'; 
+  let timeLeft = 3;
+  const countdownEl = document.getElementById('countdown');
+  const loadingMsgEl = document.getElementById('loading-message');
 
-    btn.onclick = () => attemptRedirect();
-    
-    const container = document.getElementById('app-container');
-    if (container) {
-      container.appendChild(btn);
-    } else {
-      document.body.appendChild(btn);
+  const timer = setInterval(() => {
+    timeLeft -= 1;
+    if (countdownEl) {
+      countdownEl.innerText = timeLeft.toString();
     }
-  }, 3000);
+    
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      if (loadingMsgEl) {
+        loadingMsgEl.style.display = 'none';
+      }
+
+      const btn = document.createElement('button');
+      btn.innerText = 'Kembali ke Aplikasi';
+      btn.className = 'counter';
+      btn.style.cursor = 'pointer';
+      btn.style.marginBottom = '0'; 
+
+      btn.onclick = () => attemptRedirect();
+      
+      const container = document.getElementById('app-container');
+      if (container) {
+        container.appendChild(btn);
+      } else {
+        document.body.appendChild(btn);
+      }
+    }
+  }, 1000);
 }
