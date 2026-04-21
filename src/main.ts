@@ -6,7 +6,6 @@ declare global {
   interface Window {
     wx: any;
     tcsas: any;
-    WeixinJSBridge: any;
   }
 }
 
@@ -49,14 +48,6 @@ if (root && path) {
 
   script.onload = () => {
     console.log('TCMPP JSSDK loaded successfully.');
-    setTimeout(() => {
-      const sdk = window.wx || window.tcsas;
-      
-      if (!sdk && window.WeixinJSBridge) {
-         window.WeixinJSBridge.invoke('navigateTo', { url: redirectPath });
-         return;
-      }
-    }, 100);
   };
 
   script.onerror = () => {
