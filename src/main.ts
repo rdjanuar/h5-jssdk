@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-if (root && path) {
+if ((root && root === 'miniapp') && path) {
   console.log('Loading TCMPP JSSDK...');
   
   let redirectPath = decodeURIComponent(path);
@@ -48,6 +48,9 @@ if (root && path) {
 
   script.onload = () => {
     console.log('TCMPP JSSDK loaded successfully.');
+    setTimeout(() => {
+      attemptRedirect()
+    }, 0)
   };
 
   script.onerror = () => {
@@ -55,38 +58,4 @@ if (root && path) {
   };
 
   document.head.appendChild(script);
-
-  let timeLeft = 3;
-  const countdownEl = document.getElementById('countdown');
-  const loadingMsgEl = document.getElementById('loading-message');
-
-  const timer = setInterval(() => {
-    timeLeft -= 1;
-    if (countdownEl) {
-      countdownEl.innerText = timeLeft.toString();
-    }
-    
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      attemptRedirect()
-      if (loadingMsgEl) {
-        loadingMsgEl.style.display = 'none';
-      }
-
-      const btn = document.createElement('button');
-      btn.innerText = 'Kembali ke Aplikasi';
-      btn.className = 'counter'; 
-      btn.style.cursor = 'pointer';
-      btn.style.marginBottom = '0'; 
-
-      btn.onclick = () => attemptRedirect();
-      
-      const container = document.getElementById('app-container');
-      if (container) {
-        container.appendChild(btn);
-      } else {
-        document.body.appendChild(btn);
-      }
-    }
-  }, 1000);
 }
