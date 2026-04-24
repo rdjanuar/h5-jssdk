@@ -5,8 +5,25 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Telkomsel</title>
+    <link rel="stylesheet" href="/src/style.css">
   </head>
   <body>
+    <div class="success-page">
+      <div class="header">
+        <img class="icon" src="/status-icon.svg"/>
+        <h1 class="title">Pembayaran Berhasil</h1>
+        <p class="subtitle">Tekan tombol di bawah untuk kembali ke<br>halaman Keuangan</p>
+      </div>
+
+      <div class="content">
+        <div class="illustration-container">
+          <img src="/illustration.svg" alt="Success Illustration" class="illustration" />
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn-primary" id="btn-back">Kembali ke Keuangan</button>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -1,3 +1,5 @@
+import '@fontsource/poppins/index.css';
+
 const urlParams = new URLSearchParams(window.location.search);
 const root = urlParams.get('root');
 const path = urlParams.get('path');
@@ -58,4 +60,11 @@ if ((root && root === 'miniapp') && path) {
   };
 
   document.head.appendChild(script);
+
+  const btnBack = document.getElementById('btn-back');
+  if (btnBack) {
+    btnBack.addEventListener('click', () => {
+      attemptRedirect();
+    });
+  }
 }
