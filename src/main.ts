@@ -50,9 +50,6 @@ if ((root && root === 'miniapp') && path) {
 
   script.onload = () => {
     console.log('TCMPP JSSDK loaded successfully.');
-    setTimeout(() => {
-      attemptRedirect()
-    }, 0)
   };
 
   script.onerror = () => {
