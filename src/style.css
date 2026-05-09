@@ -17,6 +17,8 @@ body {
   min-height: 100vh;
   text-align: center;
   position: relative;
+  max-width: 768px;
+  margin-inline: auto;
   background-color: #ffffff;
 }
 
@@ -40,10 +42,10 @@ body {
 }
 
 .title {
-  color: #007A47;
+  color: #0050AE;
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .subtitle {
