@@ -80,7 +80,7 @@ function init() {
     isValidTransactionId(transactionId) &&
     isValidRefreshBalance(refreshBalance);
 
-  const appId = getAppId() || '123';
+  const appId = getAppId();
   const sdkLoadFailure = !window.wx && !window.tcsas;
   const isBindingSuccess = layoutParam === "binding_success" || layoutParam === "success-binding";
 
