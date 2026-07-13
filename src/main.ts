@@ -55,13 +55,13 @@ function buildExistingMyTelkomselUrl({
 }
 
 
-function isValidTransactionId(value) {
+function isValidTransactionId(value: string) {
   if (typeof value !== "string") {
     return false;
   }
   return /^[A-Za-z0-9_-]{1,100}$/.test(value);
 }
-function isValidRefreshBalance(value) {
+function isValidRefreshBalance(value: string) {
   return value === "true" || value === "false";
 }
 
