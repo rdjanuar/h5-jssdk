@@ -84,7 +84,7 @@ function init() {
   const sdkLoadFailure = !window.wx && !window.tcsas;
   const isBindingSuccess = layoutParam === "binding_success" || layoutParam === "success-binding";
 
-  const shouldRedirect = !appId || sdkLoadFailure || hasValidContext;
+  const shouldRedirect = sdkLoadFailure || hasValidContext;
 
   // 1. Render layout/page decision
   const app = document.getElementById("app");
@@ -99,7 +99,7 @@ function init() {
   }
 
   // 2. Perform forced redirection if needed
-  if (shouldRedirect) {
+  if (!appId && shouldRedirect) {
     const targetUrl = buildExistingMyTelkomselUrl({ transactionId, refreshBalance });
     window.location.replace(targetUrl);
     return;
