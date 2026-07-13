@@ -1,31 +1,17 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>My Telkomsel</title>
-    <link rel="stylesheet" href="/src/style.css">
-  </head>
-  <body>
-    <div class="success-page">
-      <div class="header">
-        <img class="icon" src="/status-icon.svg"/>
-        <h1 class="title">Transaksi Selesai</h1>
-        <p class="subtitle">Status pembayaran dapat dipastikan
-          <br />
-          melalui riwayat transaksi.</p>
-      </div>
 
-      <div class="content">
-        <div class="illustration-container">
-          <img src="/illustration.svg" alt="Success Illustration" class="illustration" />
-        </div>
-      </div>
-      <div class="footer">
-        <button class="btn-primary" id="btn-finance">Kembali ke Keuangan</button>
-        <button class="btn-secondary" id="btn-history">Lihat Riwayat Transaksi</button>
-      </div>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>My Telkomsel</title>
+  <script src="https://tcmpp-team.github.io/mini-programs/jssdk/tcsas-jssdk-1.0.1.js"></script>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
 </html>

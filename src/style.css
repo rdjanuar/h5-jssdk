@@ -109,3 +109,15 @@ body {
 .btn-secondary:active {
   opacity: 0.8;
 }
+
+.layout-indicator {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 12px;
+  background-color: #F5F7FA;
+  border: 1px dashed #D0D5DD;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #667085;
+  font-weight: 500;
+}

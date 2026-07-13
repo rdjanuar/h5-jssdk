@@ -1,9 +1,11 @@
 import "@fontsource/poppins/index.css";
+import successTransactionHtml from "../layouts/success-transaction/index.html?raw";
+import successBindingHtml from "../layouts/success-binding/index.html?raw";
+import { initSuccessTransaction } from "../layouts/success-transaction";
+import { initSuccessBinding } from "../layouts/success-binding";
+import { getAppId } from './utils';
 
-const urlParams = new URLSearchParams(window.location.search);
-const root = urlParams.get("root");
-const path = urlParams.get("path");
-
+// Global types for TCMPP JSSDK
 declare global {
   interface Window {
     wx: any;
@@ -11,99 +13,166 @@ declare global {
   }
 }
 
-if (root && root === "miniapp" && path) {
-  console.log("Loading TCMPP JSSDK...");
+// Configuration: Allowed paths for redirect inside the mini-program
+export const ALLOWED_MINI_APP_PATHS = new Set([
+  "/pages/finance/index"
+]);
 
-  let redirectPath = decodeURIComponent(path);
-  if (redirectPath.startsWith('"') && redirectPath.endsWith('"')) {
-    redirectPath = redirectPath.slice(1, -1);
+/**
+ * Extracts the base pathname from a path string, discarding query parameters and hashes.
+ * E.g., "/pages/finance/index?id=123" -> "/pages/finance/index"
+ */
+function getCleanPathname(pathStr: string): string {
+  const withoutQuery = pathStr.split("?")[0];
+  const cleanPath = withoutQuery.split("#")[0];
+  return cleanPath;
+}
+
+/**
+ * Validates if the redirect pathname is allowed.
+ */
+function isValidRedirectPath(pathStr: string): boolean {
+  const pathname = getCleanPathname(pathStr);
+  return ALLOWED_MINI_APP_PATHS.has(pathname);
+}
+
+/**
+ * Builds the fallback URL to redirect back to the MyTelkomsel native app.
+ */
+function buildExistingMyTelkomselUrl({
+  transactionId,
+  refreshBalance
+}: {
+  transactionId: string;
+  refreshBalance: string;
+}) {
+  const url = new URL("https://my.telkomsel.com/app/linkaja/linkage");
+  url.searchParams.set("type", "transaction");
+  url.searchParams.set("redirectPage", "/app/finance");
+  url.searchParams.set("transactionId", transactionId);
+  url.searchParams.set("refreshBalance", refreshBalance);
+  return url.toString();
+}
+
+
+function isValidTransactionId(value) {
+  if (typeof value !== "string") {
+    return false;
+  }
+  return /^[A-Za-z0-9_-]{1,100}$/.test(value);
+}
+function isValidRefreshBalance(value) {
+  return value === "true" || value === "false";
+}
+
+/**
+ * Main application initialization
+ */
+function init() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const root = urlParams.get("root");
+  const path = urlParams.get("path");
+  const layoutParam = urlParams.get("layout") || "success-transaction";
+  const transactionId = urlParams.get('transactionId') || "";
+  const refreshBalance = urlParams.get('refreshBalance') || "";
+
+  const hasValidContext =
+    isValidTransactionId(transactionId) &&
+    isValidRefreshBalance(refreshBalance);
+
+  const appId = getAppId() || '123';
+  const sdkLoadFailure = !window.wx && !window.tcsas;
+  const isBindingSuccess = layoutParam === "binding_success" || layoutParam === "success-binding";
+
+  const shouldRedirect = !appId || sdkLoadFailure || hasValidContext;
+
+  // 1. Render layout/page decision
+  const app = document.getElementById("app");
+  if (app) {
+    if (shouldRedirect) {
+      app.innerHTML = '';
+    } else if (isBindingSuccess) {
+      app.innerHTML = successBindingHtml;
+    } else {
+      app.innerHTML = successTransactionHtml;
+    }
   }
 
-  const attemptRedirect = (extraParams?: Record<string, string>) => {
-    const sdk = window.wx || window.tcsas;
-    if (sdk && sdk.miniProgram) {
-      let targetUrl = redirectPath;
+  // 2. Perform forced redirection if needed
+  if (shouldRedirect) {
+    const targetUrl = buildExistingMyTelkomselUrl({ transactionId, refreshBalance });
+    window.location.replace(targetUrl);
+    return;
+  }
 
-      // Only forward/modify query params if extraParams is explicitly provided
-      if (extraParams) {
-        // 1. Collect query parameters from the current H5 URL (except root and path)
-        const forwardParams: Record<string, string> = {};
-        urlParams.forEach((value, key) => {
-          if (key !== "root" && key !== "path") {
-            forwardParams[key] = value;
-          }
-        });
+  // 3. Mini-program configuration & redirection handling
+  if (root === "miniapp" && path) {
+    console.log("Loading TCMPP JSSDK...");
 
-        // 2. Merge with any extra parameters passed for this redirect
-        const mergedParams = { ...forwardParams, ...extraParams };
+    let redirectPath = decodeURIComponent(path);
+    if (redirectPath.startsWith('"') && redirectPath.endsWith('"')) {
+      redirectPath = redirectPath.slice(1, -1);
+    }
 
-        // 3. Append parameters to redirectPath
-        if (Object.keys(mergedParams).length > 0) {
-          const separator = targetUrl.includes("?") ? "&" : "?";
-          const queryString = Object.entries(mergedParams)
-            .map(
-              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
-            )
-            .join("&");
-          targetUrl = `${targetUrl}${separator}${queryString}`;
-        }
+    const attemptRedirect = (extraParams?: Record<string, string>) => {
+      // Path validation check
+      if (!isValidRedirectPath(redirectPath)) {
+        const pathname = getCleanPathname(redirectPath);
+        console.error(`Redirect blocked. Path "${pathname}" is not in the allowed list.`);
+        alert(`Security Error: The redirect path is not allowed.`);
+        return;
       }
 
-      console.log("Redirecting to mini-program URL:", targetUrl);
+      const sdk = window.wx || window.tcsas;
+      if (sdk && sdk.miniProgram) {
+        let targetUrl = redirectPath;
 
-      sdk.miniProgram.reLaunch({
-        url: targetUrl,
-        success: () => console.log("reLaunch success to", targetUrl),
-        fail: () => {
-          sdk.miniProgram.navigateTo({
-            url: targetUrl,
-            success: () => console.log("navigateTo success to", targetUrl),
-            fail: (err: any) =>
-              alert("All redirects failed: " + JSON.stringify(err)),
+        // Forward query params if extraParams is explicitly provided
+        if (extraParams) {
+          const forwardParams: Record<string, string> = {};
+          urlParams.forEach((value, key) => {
+            if (key !== "root" && key !== "path") {
+              forwardParams[key] = value;
+            }
           });
-        },
-      });
+
+          const mergedParams = { ...forwardParams, ...extraParams };
+
+          if (Object.keys(mergedParams).length > 0) {
+            const separator = targetUrl.includes("?") ? "&" : "?";
+            const queryString = Object.entries(mergedParams)
+              .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+              .join("&");
+            targetUrl = `${targetUrl}${separator}${queryString}`;
+          }
+        }
+
+        console.log("Redirecting to mini-program URL:", targetUrl);
+
+        sdk.miniProgram.reLaunch({
+          url: targetUrl,
+          success: () => console.log("reLaunch success to", targetUrl),
+          fail: () => {
+            sdk.miniProgram.navigateTo({
+              url: targetUrl,
+              success: () => console.log("navigateTo success to", targetUrl),
+              fail: (err: any) => alert("All redirects failed: " + JSON.stringify(err)),
+            });
+          },
+        });
+      } else {
+        alert("SDK (wx/tcsas) .miniProgram is not available on window");
+      }
+    };
+
+    // Initialize layout-specific click events
+    if (isBindingSuccess) {
+      initSuccessBinding(attemptRedirect);
     } else {
-      alert("SDK (wx/tcsas) .miniProgram is not available on window");
+      initSuccessTransaction(attemptRedirect, urlParams);
     }
-  };
-
-  const script = document.createElement("script");
-  script.src =
-    "https://tcmpp-team.github.io/mini-programs/jssdk/tcsas-jssdk-1.0.1.js";
-  script.async = true;
-
-  script.onload = () => {
-    console.log("TCMPP JSSDK loaded successfully.");
-  };
-
-  script.onerror = () => {
-    alert("Failed to load TCMPP JSSDK script from network.");
-  };
-
-  document.head.appendChild(script);
-
-  const btnFinance = document.getElementById("btn-finance");
-  if (btnFinance) {
-    btnFinance.addEventListener("click", () => {
-      attemptRedirect();
-    });
-  }
-
-  const btnHistory = document.getElementById("btn-history");
-  if (btnHistory) {
-    btnHistory.addEventListener("click", () => {
-      // Look for the payment method in the H5 URL parameters (generic variants)
-      const paymentMethod =
-        urlParams.get("payment_method") ||
-        urlParams.get("paymentMethod") ||
-        urlParams.get("method") ||
-        "";
-
-      attemptRedirect({
-        action: "history_page",
-        payment_method: paymentMethod,
-      });
-    });
   }
 }
+
+// Start H5 page logic
+init();
