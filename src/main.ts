@@ -101,7 +101,7 @@ function init() {
   // 2. Perform forced redirection if needed
   if (shouldRedirect) {
     const targetUrl = buildExistingMyTelkomselUrl({ transactionId, refreshBalance });
-    window.location.replace(targetUrl);
+    window.location.href = targetUrl
     return;
   }
 
