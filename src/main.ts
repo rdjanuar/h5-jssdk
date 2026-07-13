@@ -101,16 +101,21 @@ function init() {
   // 2. Perform forced redirection if needed
   if (shouldRedirect) {
     const targetUrl = buildExistingMyTelkomselUrl({ transactionId, refreshBalance });
-    window.location.href = targetUrl
-    window.wx.invokeNativePlugin({
-      api_name: 'openWebView',
-      data: {
-        url: targetUrl
-      },
-      fail: (err) => {
-        alert(JSON.stringify(err, null, 2))
-      }
-    })
+
+    if (appId) {
+      window.wx.invokeNativePlugin({
+        api_name: 'openWebView',
+        data: {
+          url: targetUrl
+        },
+        fail: (err) => {
+          alert(JSON.stringify(err, null, 2))
+        }
+      })
+    } else {
+      window.location.href = targetUrl
+    }
+
     return;
   }
 
