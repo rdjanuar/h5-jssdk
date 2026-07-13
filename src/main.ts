@@ -108,7 +108,7 @@ function init() {
         data: {
           url: targetUrl
         },
-        fail: (err) => {
+        fail: (err: unknown) => {
           alert(JSON.stringify(err, null, 2))
         }
       })
