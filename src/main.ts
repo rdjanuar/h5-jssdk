@@ -89,7 +89,7 @@ function init() {
   // 1. Render layout/page decision
   const app = document.getElementById("app");
   if (app) {
-    if (shouldRedirect) {
+    if (!appId || shouldRedirect) {
       app.innerHTML = '';
     } else if (isBindingSuccess) {
       app.innerHTML = successBindingHtml;
@@ -99,7 +99,7 @@ function init() {
   }
 
   // 2. Perform forced redirection if needed
-  if (!appId && shouldRedirect) {
+  if (shouldRedirect) {
     const targetUrl = buildExistingMyTelkomselUrl({ transactionId, refreshBalance });
     window.location.replace(targetUrl);
     return;
