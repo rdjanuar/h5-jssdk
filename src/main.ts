@@ -103,14 +103,12 @@ function init() {
     const targetUrl = buildExistingMyTelkomselUrl({ transactionId, refreshBalance });
 
     if (appId) {
-      window.wx.invokeNativePlugin({
-        api_name: 'openWebView',
-        data: {
+      window.wx.miniProgram.sendWebviewEvent({
+        scope: 'qr_scanner',
+        action: 'success_payment_linkaja',
+        payload: {
           url: targetUrl
         },
-        fail: (err: unknown) => {
-          alert(JSON.stringify(err, null, 2))
-        }
       })
     } else {
       window.location.href = targetUrl
