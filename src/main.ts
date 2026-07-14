@@ -192,7 +192,7 @@ export class AppRoot extends TwLitElement {
         ></success-transaction-layout>
       `;
     }
-    return html``;
+    return html;
   }
 }
 
