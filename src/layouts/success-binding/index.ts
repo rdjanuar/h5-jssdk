@@ -12,6 +12,7 @@ export class SuccessBindingLayout extends TwLitElement {
     super.connectedCallback();
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get("authCode");
+    const paymentMethod = urlParams.get('payment')
 
     if (window.wx?.miniProgram) {
       window.wx.miniProgram.sendWebviewEvent({
@@ -19,6 +20,7 @@ export class SuccessBindingLayout extends TwLitElement {
         action: "binding_auth_code",
         payload: {
           authCode,
+          paymentMethod
         },
       });
     }
