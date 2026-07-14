@@ -36,6 +36,7 @@ function isValidRedirectPath(pathStr: string): boolean {
   return ALLOWED_MINI_APP_PATHS.has(pathname);
 }
 
+
 /**
  * Builds the fallback URL to redirect back to the MyTelkomsel native app.
  */
@@ -74,8 +75,25 @@ function init() {
   const root = urlParams.get("root");
   const path = urlParams.get("path");
   const layoutParam = urlParams.get("layout") || "success-transaction";
-  const transactionId = urlParams.get('transactionId') || "";
-  const refreshBalance = urlParams.get('refreshBalance') || "";
+  let transactionId = urlParams.get("transactionId") || "";
+  let refreshBalance = urlParams.get("refreshBalance") || "";
+
+  if (!transactionId || !refreshBalance) {
+    if (path) {
+      try {
+        const decodedPath = decodeURIComponent(path);
+        const pathUrl = new URL(decodedPath.includes("://") ? decodedPath : `https://${decodedPath}`);
+        if (!transactionId) {
+          transactionId = pathUrl.searchParams.get("transactionId") || "";
+        }
+        if (!refreshBalance) {
+          refreshBalance = pathUrl.searchParams.get("refreshBalance") || "";
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+  }
 
   const hasValidContext =
     isValidTransactionId(transactionId) &&
@@ -87,7 +105,6 @@ function init() {
 
   const shouldRedirect = sdkLoadFailure || hasValidContext;
 
-  // 1. Render layout/page decision
   const app = document.getElementById("app");
   if (app) {
     if (shouldRedirect) {
@@ -99,20 +116,38 @@ function init() {
     }
   }
 
-  // 2. Perform forced redirection if needed
   if (shouldRedirect) {
-    const targetUrl = buildExistingMyTelkomselUrl({ transactionId, refreshBalance });
-
     if (appId) {
+      const targetUrl = (() => {
+        const decodedPath = decodeURIComponent(path || "");
+        const hasProtocol = decodedPath.startsWith("http://") || decodedPath.startsWith("https://");
+        try {
+          const urlObj = new URL(hasProtocol ? decodedPath : `https://${decodedPath}`);
+          if (transactionId && !urlObj.searchParams.has("transactionId")) {
+            urlObj.searchParams.set("transactionId", transactionId);
+          }
+          if (refreshBalance && !urlObj.searchParams.has("refreshBalance")) {
+            urlObj.searchParams.set("refreshBalance", refreshBalance);
+          }
+          return urlObj.toString();
+        } catch (e) {
+          return hasProtocol ? decodedPath : `https://${decodedPath}`;
+        }
+      })();
+
       window.wx.miniProgram.sendWebviewEvent({
         scope: 'qr_scanner',
         action: 'success_payment_linkaja',
         payload: {
           url: targetUrl
         },
-      })
+      });
     } else {
-      window.location.href = targetUrl
+      const targetUrl = buildExistingMyTelkomselUrl({
+        transactionId,
+        refreshBalance
+      });
+      window.location.href = targetUrl;
     }
 
     return;
