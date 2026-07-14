@@ -16,7 +16,7 @@ export class SuccessBindingLayout extends TwLitElement {
 
     if (window.wx?.miniProgram) {
       window.wx.miniProgram.sendWebviewEvent({
-        scope: "success_binding",
+        scope: "binding",
         action: "binding_auth_code",
         payload: {
           authCode,
