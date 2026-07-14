@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  background-color: #ffffff;
+}
+
+body {
+  background-color: #ffffff;
+  color: #333333;
+  -webkit-font-smoothing: antialiased;
+  font-family:
+    "Poppins",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+:host {
+  font-family:
+    "Poppins",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+@theme static {
+  --color-primary: #e30022;
+  --color-secondary: #0050ae;
+  --text-color-secondary: #0050ae;
+  --text-color-primary: #181c21;
+  --color-stroke: #dae0e9;
+  --ui-border: #e5e5e5;
+  --ui-text-normal: #3d4652;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

@@ -1,9 +1,18 @@
-import "@fontsource/poppins/index.css";
-import successTransactionHtml from "../layouts/success-transaction/index.html?raw";
-import successBindingHtml from "../layouts/success-binding/index.html?raw";
-import { initSuccessTransaction } from "../layouts/success-transaction";
-import { initSuccessBinding } from "../layouts/success-binding";
-import { getAppId } from './utils';
+import "./styles/main.css";
+import { LitElement, html } from "lit";
+import { customElement, state } from "lit/decorators.js";
+import { TW } from "./mixins/tailwind-integration";
+import "./layouts/success-transaction";
+import "./layouts/success-binding";
+import "./layouts/failed-binding";
+import {
+  getAppId,
+  isValidTransactionId,
+  isValidRefreshBalance,
+  buildExistingMyTelkomselUrl,
+  isValidRedirectPath,
+  getCleanPathname,
+} from "./utils";
 
 // Global types for TCMPP JSSDK
 declare global {
@@ -13,205 +22,182 @@ declare global {
   }
 }
 
-// Configuration: Allowed paths for redirect inside the mini-program
-export const ALLOWED_MINI_APP_PATHS = new Set([
-  "/pages/finance/index"
-]);
+const TwLitElement = TW(LitElement);
 
-/**
- * Extracts the base pathname from a path string, discarding query parameters and hashes.
- * E.g., "/pages/finance/index?id=123" -> "/pages/finance/index"
- */
-function getCleanPathname(pathStr: string): string {
-  const withoutQuery = pathStr.split("?")[0];
-  const cleanPath = withoutQuery.split("#")[0];
-  return cleanPath;
-}
+@customElement("app-root")
+export class AppRoot extends TwLitElement {
+  @state() private layout: "binding_success" | "success-transaction" | "binding_failed" | "none" =
+    "none";
 
-/**
- * Validates if the redirect pathname is allowed.
- */
-function isValidRedirectPath(pathStr: string): boolean {
-  const pathname = getCleanPathname(pathStr);
-  return ALLOWED_MINI_APP_PATHS.has(pathname);
-}
+  private redirectPath = "";
+  private urlParams!: URLSearchParams;
 
-
-/**
- * Builds the fallback URL to redirect back to the MyTelkomsel native app.
- */
-function buildExistingMyTelkomselUrl({
-  targetPath,
-  transactionId,
-  refreshBalance
-}: {
-  targetPath: string
-  transactionId: string
-  refreshBalance: string
-}) {
-
-  const decodedPath = decodeURIComponent(targetPath || "");
-  const hasProtocol = decodedPath.startsWith("http://") || decodedPath.startsWith("https://");
-  try {
-    const urlObj = new URL(hasProtocol ? decodedPath : `https://${decodedPath}`);
-    if (transactionId && !urlObj.searchParams.has("transactionId")) {
-      urlObj.searchParams.set("transactionId", transactionId);
-    }
-    if (refreshBalance && !urlObj.searchParams.has("refreshBalance")) {
-      urlObj.searchParams.set("refreshBalance", refreshBalance);
-    }
-    return urlObj.toString();
-  } catch (e) {
-    return hasProtocol ? decodedPath : `https://${decodedPath}`;
+  connectedCallback() {
+    super.connectedCallback();
+    this.initApp();
   }
 
-}
+  private initApp() {
+    this.urlParams = new URLSearchParams(window.location.search);
+    const root = this.urlParams.get("root");
+    const path = this.urlParams.get("path");
+    const layoutParam = this.urlParams.get("layout") || "success-transaction";
+    let transactionId = this.urlParams.get("transactionId") || "";
+    let refreshBalance = this.urlParams.get("refreshBalance") || "";
 
-
-function isValidTransactionId(value: string) {
-  if (typeof value !== "string") {
-    return false;
-  }
-  return /^[A-Za-z0-9_-]{1,100}$/.test(value);
-}
-function isValidRefreshBalance(value: string) {
-  return value === "true" || value === "false";
-}
-
-/**
- * Main application initialization
- */
-function init() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const root = urlParams.get("root");
-  const path = urlParams.get("path");
-  const layoutParam = urlParams.get("layout") || "success-transaction";
-  let transactionId = urlParams.get("transactionId") || "";
-  let refreshBalance = urlParams.get("refreshBalance") || "";
-
-  if (!transactionId || !refreshBalance) {
-    if (path) {
-      try {
-        const decodedPath = decodeURIComponent(path);
-        const pathUrl = new URL(decodedPath.includes("://") ? decodedPath : `https://${decodedPath}`);
-        if (!transactionId) {
-          transactionId = pathUrl.searchParams.get("transactionId") || "";
-        }
-        if (!refreshBalance) {
-          refreshBalance = pathUrl.searchParams.get("refreshBalance") || "";
-        }
-      } catch (e) {
-        // ignore
-      }
-    }
-  }
-
-  const hasValidContext =
-    isValidTransactionId(transactionId) &&
-    isValidRefreshBalance(refreshBalance);
-
-  const appId = getAppId();
-  const sdkLoadFailure = !window.wx && !window.tcsas;
-  const isBindingSuccess = layoutParam === "binding_success" || layoutParam === "success-binding";
-
-  const shouldRedirect = sdkLoadFailure || hasValidContext;
-
-  const app = document.getElementById("app");
-  if (app) {
-    if (shouldRedirect) {
-      app.innerHTML = '';
-    } else if (isBindingSuccess) {
-      app.innerHTML = successBindingHtml;
-    } else {
-      app.innerHTML = successTransactionHtml;
-    }
-  }
-
-  if (shouldRedirect) {
-    if (appId) {
-      window.wx.miniProgram.reLaunch({
-        url: '/pages/finance/index'
-      })
-    } else {
-      const targetUrl = buildExistingMyTelkomselUrl({
-        targetPath: path!,
-        transactionId,
-        refreshBalance
-      });
-      window.location.href = targetUrl;
-    }
-
-    return;
-  }
-
-  // 3. Mini-program configuration & redirection handling
-  if (root === "miniapp" && path) {
-    console.log("Loading TCMPP JSSDK...");
-
-    let redirectPath = decodeURIComponent(path);
-    if (redirectPath.startsWith('"') && redirectPath.endsWith('"')) {
-      redirectPath = redirectPath.slice(1, -1);
-    }
-
-    const attemptRedirect = (extraParams?: Record<string, string>) => {
-      // Path validation check
-      if (!isValidRedirectPath(redirectPath)) {
-        const pathname = getCleanPathname(redirectPath);
-        console.error(`Redirect blocked. Path "${pathname}" is not in the allowed list.`);
-        alert(`Security Error: The redirect path is not allowed.`);
-        return;
-      }
-
-      const sdk = window.wx || window.tcsas;
-      if (sdk && sdk.miniProgram) {
-        let targetUrl = redirectPath;
-
-        // Forward query params if extraParams is explicitly provided
-        if (extraParams) {
-          const forwardParams: Record<string, string> = {};
-          urlParams.forEach((value, key) => {
-            if (key !== "root" && key !== "path") {
-              forwardParams[key] = value;
-            }
-          });
-
-          const mergedParams = { ...forwardParams, ...extraParams };
-
-          if (Object.keys(mergedParams).length > 0) {
-            const separator = targetUrl.includes("?") ? "&" : "?";
-            const queryString = Object.entries(mergedParams)
-              .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-              .join("&");
-            targetUrl = `${targetUrl}${separator}${queryString}`;
+    if (!transactionId || !refreshBalance) {
+      if (path) {
+        try {
+          const decodedPath = decodeURIComponent(path);
+          const pathUrl = new URL(
+            decodedPath.includes("://") ? decodedPath : `https://${decodedPath}`,
+          );
+          if (!transactionId) {
+            transactionId = pathUrl.searchParams.get("transactionId") || "";
           }
+          if (!refreshBalance) {
+            refreshBalance = pathUrl.searchParams.get("refreshBalance") || "";
+          }
+        } catch (e) {
+          // ignore
         }
+      }
+    }
 
-        console.log("Redirecting to mini-program URL:", targetUrl);
+    const hasValidContext =
+      isValidTransactionId(transactionId) && isValidRefreshBalance(refreshBalance);
 
-        sdk.miniProgram.reLaunch({
-          url: targetUrl,
-          success: () => console.log("reLaunch success to", targetUrl),
-          fail: () => {
-            sdk.miniProgram.navigateTo({
-              url: targetUrl,
-              success: () => console.log("navigateTo success to", targetUrl),
-              fail: (err: any) => alert("All redirects failed: " + JSON.stringify(err)),
-            });
-          },
+    const appId = getAppId();
+    const sdkLoadFailure = !window.wx && !window.tcsas;
+    const isBindingFlow =
+      layoutParam === "binding" ||
+      layoutParam === "success-binding" ||
+      layoutParam === "binding_success" ||
+      layoutParam === "binding_failed" ||
+      layoutParam === "failed-binding";
+
+    const statusParam = this.urlParams.get("status") || "success";
+
+    const isBindingSuccess = isBindingFlow && statusParam === "success";
+    const isBindingFailed = isBindingFlow && statusParam === "error";
+
+    const shouldRedirect = sdkLoadFailure || hasValidContext;
+
+    if (shouldRedirect) {
+      if (appId) {
+        window.wx.miniProgram.reLaunch({
+          url: "/pages/finance/index",
         });
       } else {
-        alert("SDK (wx/tcsas) .miniProgram is not available on window");
+        const targetUrl = buildExistingMyTelkomselUrl({
+          targetPath: path!,
+          transactionId,
+          refreshBalance,
+        });
+        window.location.href = targetUrl;
       }
-    };
-
-    // Initialize layout-specific click events
-    if (isBindingSuccess) {
-      initSuccessBinding(attemptRedirect);
-    } else {
-      initSuccessTransaction(attemptRedirect, urlParams);
+      return;
     }
+
+    // Set layout state
+    if (isBindingSuccess) {
+      this.layout = "binding_success";
+    } else if (isBindingFailed) {
+      this.layout = "binding_failed";
+    } else {
+      this.layout = "success-transaction";
+    }
+
+    // 3. Mini-program configuration & redirection handling
+    if (root === "miniapp" && path) {
+      console.log("Loading TCMPP JSSDK...");
+
+      let decoded = decodeURIComponent(path);
+      if (decoded.startsWith('"') && decoded.endsWith('"')) {
+        decoded = decoded.slice(1, -1);
+      }
+      this.redirectPath = decoded;
+    }
+  }
+
+  private _handleRedirect(e: CustomEvent<Record<string, string> | undefined>) {
+    const extraParams = e.detail;
+    if (!this.redirectPath) return;
+
+    // Path validation check
+    if (!isValidRedirectPath(this.redirectPath)) {
+      const pathname = getCleanPathname(this.redirectPath);
+      console.error(`Redirect blocked. Path "${pathname}" is not in the allowed list.`);
+      alert(`Security Error: The redirect path is not allowed.`);
+      return;
+    }
+
+    const sdk = window.wx || window.tcsas;
+    if (sdk && sdk.miniProgram) {
+      let targetUrl = this.redirectPath;
+
+      // Forward query params if extraParams is explicitly provided
+      if (extraParams) {
+        const forwardParams: Record<string, string> = {};
+        this.urlParams.forEach((value, key) => {
+          if (key !== "root" && key !== "path") {
+            forwardParams[key] = value;
+          }
+        });
+
+        const mergedParams = { ...forwardParams, ...extraParams };
+
+        if (Object.keys(mergedParams).length > 0) {
+          const separator = targetUrl.includes("?") ? "&" : "?";
+          const queryString = Object.entries(mergedParams)
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .join("&");
+          targetUrl = `${targetUrl}${separator}${queryString}`;
+        }
+      }
+
+      console.log("Redirecting to mini-program URL:", targetUrl);
+
+      sdk.miniProgram.reLaunch({
+        url: targetUrl,
+        success: () => console.log("reLaunch success to", targetUrl),
+        fail: () => {
+          sdk.miniProgram.navigateTo({
+            url: targetUrl,
+            success: () => console.log("navigateTo success to", targetUrl),
+            fail: (err: any) => alert("All redirects failed: " + JSON.stringify(err)),
+          });
+        },
+      });
+    } else {
+      alert("SDK (wx/tcsas) .miniProgram is not available on window");
+    }
+  }
+
+  protected render() {
+    if (this.layout === "binding_success") {
+      return html`
+        <success-binding-layout @attempt-redirect=${this._handleRedirect}></success-binding-layout>
+      `;
+    }
+    if (this.layout === "binding_failed") {
+      return html`
+        <failed-binding-layout @attempt-redirect=${this._handleRedirect}></failed-binding-layout>
+      `;
+    }
+    if (this.layout === "success-transaction") {
+      return html`
+        <success-transaction-layout
+          @attempt-redirect=${this._handleRedirect}
+        ></success-transaction-layout>
+      `;
+    }
+    return html``;
   }
 }
 
-// Start H5 page logic
-init();
+declare global {
+  interface HTMLElementTagNameMap {
+    "app-root": AppRoot;
+  }
+}
