@@ -134,7 +134,7 @@ function init() {
       })
     } else {
       const targetUrl = buildExistingMyTelkomselUrl({
-        targetPath: path,
+        targetPath: path!,
         transactionId,
         refreshBalance
       });
