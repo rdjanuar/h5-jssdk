@@ -90,7 +90,7 @@ function init() {
   // 1. Render layout/page decision
   const app = document.getElementById("app");
   if (app) {
-    if (!appId || shouldRedirect) {
+    if (shouldRedirect) {
       app.innerHTML = '';
     } else if (isBindingSuccess) {
       app.innerHTML = successBindingHtml;
