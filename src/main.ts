@@ -41,18 +41,29 @@ function isValidRedirectPath(pathStr: string): boolean {
  * Builds the fallback URL to redirect back to the MyTelkomsel native app.
  */
 function buildExistingMyTelkomselUrl({
+  targetPath,
   transactionId,
   refreshBalance
 }: {
-  transactionId: string;
-  refreshBalance: string;
+  targetPath: string
+  transactionId: string
+  refreshBalance: string
 }) {
-  const url = new URL("https://my.telkomsel.com/app/linkaja/linkage");
-  url.searchParams.set("type", "transaction");
-  url.searchParams.set("redirectPage", "/app/finance");
-  url.searchParams.set("transactionId", transactionId);
-  url.searchParams.set("refreshBalance", refreshBalance);
-  return url.toString();
+
+  const decodedPath = decodeURIComponent(targetPath || "");
+  const hasProtocol = decodedPath.startsWith("http://") || decodedPath.startsWith("https://");
+  try {
+    const urlObj = new URL(hasProtocol ? decodedPath : `https://${decodedPath}`);
+    if (transactionId && !urlObj.searchParams.has("transactionId")) {
+      urlObj.searchParams.set("transactionId", transactionId);
+    }
+    if (refreshBalance && !urlObj.searchParams.has("refreshBalance")) {
+      urlObj.searchParams.set("refreshBalance", refreshBalance);
+    }
+    return urlObj.toString();
+  } catch (e) {
+    return hasProtocol ? decodedPath : `https://${decodedPath}`;
+  }
 
 }
 
@@ -118,32 +129,12 @@ function init() {
 
   if (shouldRedirect) {
     if (appId) {
-      const targetUrl = (() => {
-        const decodedPath = decodeURIComponent(path || "");
-        const hasProtocol = decodedPath.startsWith("http://") || decodedPath.startsWith("https://");
-        try {
-          const urlObj = new URL(hasProtocol ? decodedPath : `https://${decodedPath}`);
-          if (transactionId && !urlObj.searchParams.has("transactionId")) {
-            urlObj.searchParams.set("transactionId", transactionId);
-          }
-          if (refreshBalance && !urlObj.searchParams.has("refreshBalance")) {
-            urlObj.searchParams.set("refreshBalance", refreshBalance);
-          }
-          return urlObj.toString();
-        } catch (e) {
-          return hasProtocol ? decodedPath : `https://${decodedPath}`;
-        }
-      })();
-
-      window.wx.miniProgram.sendWebviewEvent({
-        scope: 'qr_scanner',
-        action: 'success_payment_linkaja',
-        payload: {
-          url: targetUrl
-        },
-      });
+      window.wx.miniProgram.reLaunch({
+        url: '/pages/finance/index'
+      })
     } else {
       const targetUrl = buildExistingMyTelkomselUrl({
+        targetPath: path,
         transactionId,
         refreshBalance
       });
