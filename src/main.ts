@@ -55,22 +55,6 @@ function buildExistingMyTelkomselUrl({
   try {
     const urlObj = new URL(hasProtocol ? decodedPath : `https://${decodedPath}`);
 
-    if (urlObj.searchParams.has('type')) {
-      const type = urlObj.searchParams.get('type')
-      if (type === 'binding') {
-        const bindingPage = urlObj.searchParams.get('redirectPage') || ''
-        const decodedPathBindingPage = decodeURIComponent(bindingPage || "");
-        const hasProtocol = bindingPage.startsWith("http://") || bindingPage.startsWith("https://");
-        const redirectBindingPage = new URL(hasProtocol ? decodedPathBindingPage : `https://${decodedPathBindingPage}`)
-
-        if (transactionId && !urlObj.searchParams.has('transactionId')) {
-          redirectBindingPage.searchParams.set('transactionId', transactionId)
-        }
-
-        return redirectBindingPage.toString()
-      }
-    }
-
 
     if (transactionId && !urlObj.searchParams.has("transactionId")) {
       urlObj.searchParams.set("transactionId", transactionId);
@@ -105,6 +89,8 @@ function init() {
   const urlParams = new URLSearchParams(window.location.search);
   const root = urlParams.get("root");
   const path = urlParams.get("path");
+  const type = urlParams.get('type')
+  const redirectPage = urlParams.get('')
   const layoutParam = urlParams.get("layout") || "success-transaction";
   let transactionId = urlParams.get("transactionId") || "";
   let refreshBalance = urlParams.get("refreshBalance") || "";
@@ -126,7 +112,7 @@ function init() {
     }
   }
 
-  const hasValidContext =
+  const hasValidContext = type === 'binding' ? isValidTransactionId(transactionId) && urlParams.has('redirectPage') :
     isValidTransactionId(transactionId) &&
     isValidRefreshBalance(refreshBalance);
 
@@ -154,7 +140,7 @@ function init() {
       })
     } else {
       const targetUrl = buildExistingMyTelkomselUrl({
-        targetPath: path!,
+        targetPath: type === 'binding' ? redirectPage : path,
         transactionId,
         refreshBalance
       });
