@@ -90,7 +90,7 @@ function init() {
   const root = urlParams.get("root");
   const path = urlParams.get("path");
   const type = urlParams.get('type')
-  const redirectPage = urlParams.get('')
+  const redirectPage = urlParams.get('redirectPage')
   const layoutParam = urlParams.get("layout") || "success-transaction";
   let transactionId = urlParams.get("transactionId") || "";
   let refreshBalance = urlParams.get("refreshBalance") || "";
