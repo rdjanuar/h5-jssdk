@@ -140,7 +140,7 @@ function init() {
       })
     } else {
       const targetUrl = buildExistingMyTelkomselUrl({
-        targetPath: type === 'binding' ? redirectPage : path,
+        targetPath: type === 'binding' ? redirectPage! : path!,
         transactionId,
         refreshBalance
       });
