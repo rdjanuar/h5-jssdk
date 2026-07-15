@@ -54,12 +54,29 @@ function buildExistingMyTelkomselUrl({
   const hasProtocol = decodedPath.startsWith("http://") || decodedPath.startsWith("https://");
   try {
     const urlObj = new URL(hasProtocol ? decodedPath : `https://${decodedPath}`);
+
+    if (urlObj.searchParams.has('type')) {
+      const type = urlObj.searchParams.get('type')
+
+      if  (type === 'binding') {
+        const bindingPage = urlObj.searchParams.get('redirectPage')
+        const decodedPathBindingPage = decodeURIComponent(bindingPage || "");
+        const hasProtocol = bindingPage.startsWith("http://") || bindingPage.startsWith("https://");
+        const redirectBindingPage = new URL(hasProtocol ? decodedPathBindingPage : `https://${decodedPathBindingPage}`)
+
+        return redirectBindingPage.toString()
+      }
+    }
+
+
     if (transactionId && !urlObj.searchParams.has("transactionId")) {
       urlObj.searchParams.set("transactionId", transactionId);
     }
     if (refreshBalance && !urlObj.searchParams.has("refreshBalance")) {
       urlObj.searchParams.set("refreshBalance", refreshBalance);
     }
+
+   
     return urlObj.toString();
   } catch (e) {
     return hasProtocol ? decodedPath : `https://${decodedPath}`;
