@@ -58,7 +58,7 @@ function buildExistingMyTelkomselUrl({
     if (urlObj.searchParams.has('type')) {
       const type = urlObj.searchParams.get('type')
       if  (type === 'binding') {
-        const bindingPage = urlObj.searchParams.get('redirectPage')
+        const bindingPage = urlObj.searchParams.get('redirectPage') || ''
         const decodedPathBindingPage = decodeURIComponent(bindingPage || "");
         const hasProtocol = bindingPage.startsWith("http://") || bindingPage.startsWith("https://");
         const redirectBindingPage = new URL(hasProtocol ? decodedPathBindingPage : `https://${decodedPathBindingPage}`)
