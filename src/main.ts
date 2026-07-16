@@ -91,10 +91,19 @@ export class AppRoot extends TwLitElement {
           url: "/pages/finance/index",
         });
       } else {
+        const extraParams: Record<string, string> = {};
+        this.urlParams.forEach((value, key) => {
+          const coreParams = ["root", "path", "type", "redirectPage", "layout", "transactionId", "refreshBalance"];
+          if (!coreParams.includes(key)) {
+            extraParams[key] = value;
+          }
+        });
+
         const targetUrl = buildExistingMyTelkomselUrl({
           targetPath: type === 'binding' ? redirectPage :  path,
           transactionId,
           refreshBalance,
+          extraParams,
         });
         window.location.href = targetUrl;
       }

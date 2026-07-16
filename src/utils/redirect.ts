@@ -26,10 +26,12 @@ export function buildExistingMyTelkomselUrl({
   targetPath,
   transactionId,
   refreshBalance,
+  extraParams,
 }: {
   targetPath: string;
   transactionId: string;
   refreshBalance: string;
+  extraParams?: Record<string, string>;
 }): string {
   const decodedPath = decodeURIComponent(targetPath || "");
   const hasProtocol = decodedPath.startsWith("http://") || decodedPath.startsWith("https://");
@@ -41,8 +43,23 @@ export function buildExistingMyTelkomselUrl({
     if (refreshBalance && !urlObj.searchParams.has("refreshBalance")) {
       urlObj.searchParams.set("refreshBalance", refreshBalance);
     }
+    if (extraParams) {
+      Object.entries(extraParams).forEach(([key, value]) => {
+        if (!urlObj.searchParams.has(key)) {
+          urlObj.searchParams.set(key, value);
+        }
+      });
+    }
     return urlObj.toString();
   } catch (e) {
-    return hasProtocol ? decodedPath : `https://${decodedPath}`;
+    let target = hasProtocol ? decodedPath : `https://${decodedPath}`;
+    if (extraParams && Object.keys(extraParams).length > 0) {
+      const separator = target.includes("?") ? "&" : "?";
+      const queryString = Object.entries(extraParams)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join("&");
+      target = `${target}${separator}${queryString}`;
+    }
+    return target;
   }
 }
