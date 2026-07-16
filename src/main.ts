@@ -40,7 +40,9 @@ export class AppRoot extends TwLitElement {
   private initApp() {
     this.urlParams = new URLSearchParams(window.location.search);
     const root = this.urlParams.get("root");
-    const path = this.urlParams.get("path");
+    const path = this.urlParams.get("path") || '';
+    const type = this.urlParams.get('type') || '';
+    const redirectPage = this.urlParams.get('redirectPage') || ''
     const layoutParam = this.urlParams.get("layout") || "success-transaction";
     let transactionId = this.urlParams.get("transactionId") || "";
     let refreshBalance = this.urlParams.get("refreshBalance") || "";
@@ -90,7 +92,7 @@ export class AppRoot extends TwLitElement {
         });
       } else {
         const targetUrl = buildExistingMyTelkomselUrl({
-          targetPath: path!,
+          targetPath: type === 'binding' ? redirectPage :  path,
           transactionId,
           refreshBalance,
         });
