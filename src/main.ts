@@ -43,11 +43,13 @@ function isValidRedirectPath(pathStr: string): boolean {
 function buildExistingMyTelkomselUrl({
   targetPath,
   transactionId,
-  refreshBalance
+  refreshBalance,
+  extraParams
 }: {
   targetPath: string
   transactionId: string
   refreshBalance: string
+  extraParams?: Record<string, string>
 }) {
 
   const decodedPath = decodeURIComponent(targetPath || "");
@@ -63,10 +65,26 @@ function buildExistingMyTelkomselUrl({
       urlObj.searchParams.set("refreshBalance", refreshBalance);
     }
 
+    if (extraParams) {
+      Object.entries(extraParams).forEach(([key, value]) => {
+        if (!urlObj.searchParams.has(key)) {
+          urlObj.searchParams.set(key, value);
+        }
+      });
+    }
+
 
     return urlObj.toString();
   } catch (e) {
-    return hasProtocol ? decodedPath : `https://${decodedPath}`;
+    let target = hasProtocol ? decodedPath : `https://${decodedPath}`;
+    if (extraParams && Object.keys(extraParams).length > 0) {
+      const separator = target.includes("?") ? "&" : "?";
+      const queryString = Object.entries(extraParams)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join("&");
+      target = `${target}${separator}${queryString}`;
+    }
+    return target;
   }
 
 }
@@ -139,10 +157,19 @@ function init() {
         url: '/pages/finance/index'
       })
     } else {
+      const extraParams: Record<string, string> = {};
+      urlParams.forEach((value, key) => {
+        const coreParams = ["root", "path", "type", "redirectPage", "layout", "transactionId", "refreshBalance"];
+        if (!coreParams.includes(key)) {
+          extraParams[key] = value;
+        }
+      });
+
       const targetUrl = buildExistingMyTelkomselUrl({
         targetPath: type === 'binding' ? redirectPage! : path!,
         transactionId,
-        refreshBalance
+        refreshBalance,
+        extraParams
       });
       window.location.href = targetUrl;
     }
