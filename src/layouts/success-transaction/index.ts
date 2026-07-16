@@ -78,12 +78,10 @@ export class SuccessTransactionLayout extends TwLitElement {
             Kembali ke Keuangan
           </ui-button>
 
-          <!-- Optional history button if needed in future:
           <ui-button variant="outline" color="primary" size="lg" block @click=${this
             ._handleHistoryClick}>
             Lihat Riwayat Transaksi
           </ui-button>
-          -->
         </div>
       </div>
     `;
