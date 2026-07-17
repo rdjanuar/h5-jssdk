@@ -71,12 +71,7 @@ export class AppRoot extends TwLitElement {
 
     const appId = getAppId();
     const sdkLoadFailure = !window.wx && !window.tcsas;
-    const isBindingFlow =
-      layoutParam === "binding" ||
-      layoutParam === "success-binding" ||
-      layoutParam === "binding_success" ||
-      layoutParam === "binding_failed" ||
-      layoutParam === "failed-binding";
+    const isBindingFlow = layoutParam === 'binding'
 
     const statusParam = this.urlParams.get("status") || "success";
 
@@ -86,7 +81,7 @@ export class AppRoot extends TwLitElement {
     const shouldRedirect = sdkLoadFailure || hasValidContext;
 
     if (shouldRedirect) {
-      if (appId) {
+      if (appId && type !== 'binding')  {
         window.wx.miniProgram.reLaunch({
           url: "/pages/finance/index",
         });
