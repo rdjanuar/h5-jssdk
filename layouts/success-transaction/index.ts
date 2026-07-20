@@ -13,11 +13,7 @@ export function initSuccessTransaction(
   if (btnHistory) {
     btnHistory.addEventListener("click", () => {
       // Look for the payment method in the H5 URL parameters (generic variants)
-      const paymentMethod =
-        urlParams.get("payment_method") ||
-        urlParams.get("paymentMethod") ||
-        urlParams.get("method") ||
-        "";
+      const paymentMethod = urlParams.get("payment") || "";
 
       attemptRedirect({
         action: "history_page",
