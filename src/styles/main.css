@@ -36,8 +36,6 @@ body {
 @theme static {
   --color-primary: #e30022;
   --color-secondary: #0050ae;
-  --text-color-secondary: #0050ae;
-  --text-color-primary: #181c21;
   --color-stroke: #dae0e9;
   --ui-border: #e5e5e5;
   --ui-text-normal: #3d4652;
