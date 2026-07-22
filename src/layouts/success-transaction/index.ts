@@ -42,7 +42,7 @@ export class SuccessTransactionLayout extends TwLitElement {
             alt="Success Icon"
           />
           <h1 class="text-secondary text-[1rem] font-semibold mb-[1rem]">Transaksi Selesai</h1>
-          <p class="text-sm font-normal">
+          <p class="text-primary text-sm font-normal">
             Status pembayaran dapat dicek
             <br />
             melalui riwayat transaksi pada
@@ -76,7 +76,7 @@ export class SuccessTransactionLayout extends TwLitElement {
 
           <ui-button variant="outline" color="primary" size="lg" block @click=${this
             ._handleHistoryClick}>
-            <span class="text-primary">Lihat Riwayat Transaksi</span>
+            <span class="text-[#e30022]">Lihat Riwayat Transaksi</span>
           </ui-button>
         </div>
       </div>
