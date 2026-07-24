@@ -18,11 +18,7 @@ export class SuccessTransactionLayout extends TwLitElement {
 
   private _handleHistoryClick() {
     const urlParams = new URLSearchParams(window.location.search);
-    const paymentMethod =
-      urlParams.get("payment_method") ||
-      urlParams.get("paymentMethod") ||
-      urlParams.get("method") ||
-      "";
+   const paymentMethod = urlParams.get("payment") || "";
 
     this.dispatchEvent(
       new CustomEvent("attempt-redirect", {
@@ -80,7 +76,7 @@ export class SuccessTransactionLayout extends TwLitElement {
 
           <ui-button variant="outline" color="primary" size="lg" block @click=${this
             ._handleHistoryClick}>
-            Lihat Riwayat Transaksi
+            <span class="text-[#e30022]">Lihat Riwayat Transaksi</span>
           </ui-button>
         </div>
       </div>
