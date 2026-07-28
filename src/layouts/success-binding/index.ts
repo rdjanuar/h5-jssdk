@@ -48,10 +48,16 @@ export class SuccessBindingLayout extends TwLitElement {
   protected render() {
     const urlParams = new URLSearchParams(window.location.search);
     const rawPayment = urlParams.get("payment") || "";
+
+    const paymentNameMap: Record<string, string> = {
+      dana: "DANA",
+      ovo: "OVO",
+      blu_dd: "blu by BCA Digital",
+    };
+
     const paymentName =
-      rawPayment.toLowerCase() === "dana"
-        ? "DANA"
-        : rawPayment.charAt(0).toUpperCase() + rawPayment.slice(1);
+      paymentNameMap[rawPayment.toLowerCase()] ??
+      rawPayment.charAt(0).toUpperCase() + rawPayment.slice(1);
 
     const lottieUrl = getAssetUrl(
       "finance_miniapp_lottie_connect_success",
