@@ -20,9 +20,9 @@ export class SuccessTransactionLayout extends TwLitElement {
 
   private _handleHistoryClick() {
     const urlParams = new URLSearchParams(window.location.search);
-   const paymentMethod = urlParams.get("payment") || "";
+    const paymentMethod = urlParams.get("payment") || "";
 
-    this.dispatchEvent( 
+    this.dispatchEvent(
       new CustomEvent("attempt-redirect", {
         detail: {
           action: "history_page",
@@ -41,7 +41,7 @@ export class SuccessTransactionLayout extends TwLitElement {
           <img
             class="mb-[12px] object-contain"
             src=${getAssetUrl(
-              "status_icon",
+              "finance_miniapp_icon_transaction_success",
               "https://tdwcontent.telkomsel.com/minifnp/status-icon.svg",
             )}
             alt="Success Icon"
@@ -60,7 +60,7 @@ export class SuccessTransactionLayout extends TwLitElement {
           <div class="w-full flex justify-center items-end mx-auto">
             <img
               src=${getAssetUrl(
-                "illustration",
+                "finance_miniapp_icon_illustration_success",
                 "https://tdwcontent.telkomsel.com/minifnp/illustration.svg",
               )}
               alt="Success Illustration"
@@ -82,8 +82,13 @@ export class SuccessTransactionLayout extends TwLitElement {
             Kembali ke Keuangan
           </ui-button>
 
-          <ui-button variant="outline" color="primary" size="lg" block @click=${this
-            ._handleHistoryClick}>
+          <ui-button
+            variant="outline"
+            color="primary"
+            size="lg"
+            block
+            @click=${this._handleHistoryClick}
+          >
             <span class="text-[#e30022]">Lihat Riwayat Transaksi</span>
           </ui-button>
         </div>

@@ -61,7 +61,7 @@ export class SuccessBindingLayout extends TwLitElement {
 
     const lottieUrl = getAssetUrl(
       "finance_miniapp_lottie_connect_success",
-      "https://tdwstcontent.telkomsel.com/s3fs-public//2026-07/connected-success.json",
+      "https://tdwstcontent.telkomsel.com/s3fs-public/2026-07/connected-success.json",
     );
 
     return html`
