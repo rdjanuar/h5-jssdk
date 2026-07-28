@@ -3,6 +3,8 @@ import { customElement } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
+import { getAssetUrl } from "../../utils";
+
 const TwLitElement = TW(LitElement);
 
 @customElement("success-transaction-layout")
@@ -20,7 +22,7 @@ export class SuccessTransactionLayout extends TwLitElement {
     const urlParams = new URLSearchParams(window.location.search);
    const paymentMethod = urlParams.get("payment") || "";
 
-    this.dispatchEvent(
+    this.dispatchEvent( 
       new CustomEvent("attempt-redirect", {
         detail: {
           action: "history_page",
@@ -38,7 +40,10 @@ export class SuccessTransactionLayout extends TwLitElement {
         <div class="mt-[20px] p-[16px] flex flex-col items-center">
           <img
             class="mb-[12px] object-contain"
-            src="https://tdwcontent.telkomsel.com/minifnp/status-icon.svg"
+            src=${getAssetUrl(
+              "status_icon",
+              "https://tdwcontent.telkomsel.com/minifnp/status-icon.svg",
+            )}
             alt="Success Icon"
           />
           <h1 class="text-secondary text-[1rem] font-semibold mb-[1rem]">Transaksi Selesai</h1>
@@ -54,7 +59,10 @@ export class SuccessTransactionLayout extends TwLitElement {
         <div class="px-[16px] pt-[16px] flex items-end justify-center flex-1">
           <div class="w-full flex justify-center items-end mx-auto">
             <img
-              src="https://tdwcontent.telkomsel.com/minifnp/illustration.svg"
+              src=${getAssetUrl(
+                "illustration",
+                "https://tdwcontent.telkomsel.com/minifnp/illustration.svg",
+              )}
               alt="Success Illustration"
               class="max-w-full h-auto max-h-[380px] object-contain"
             />

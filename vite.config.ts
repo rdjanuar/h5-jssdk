@@ -9,6 +9,17 @@ export default defineConfig({
       "/s3fs-public": {
         target: "https://tdwstcontent.telkomsel.com",
         changeOrigin: true,
+        secure: false,
+      },
+      "/minifnp": {
+        target: "https://tdwcontent.telkomsel.com",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/v2": {
+        target: "https://tdwstcontent.telkomsel.com",
+        changeOrigin: true,
+        secure: false,
       },
     },
   },

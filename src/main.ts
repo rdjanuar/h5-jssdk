@@ -1,5 +1,5 @@
 import "./styles/main.css";
-import { LitElement, html } from "lit";
+import { LitElement, html, type PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { TW } from "./mixins/tailwind-integration";
 import "./layouts/success-transaction";
@@ -12,6 +12,8 @@ import {
   buildExistingMyTelkomselUrl,
   isValidRedirectPath,
   getCleanPathname,
+  resolveProxyUrl,
+  loadAssets,
 } from "./utils";
 
 // Global types for TCMPP JSSDK
@@ -32,17 +34,30 @@ export class AppRoot extends TwLitElement {
   private redirectPath = "";
   private urlParams!: URLSearchParams;
 
-  connectedCallback() {
+  @state() private assetsLoaded = false;
+
+  async connectedCallback() {
     super.connectedCallback();
     this.initApp();
+  }
+
+  protected async firstUpdated(_changedProperties: PropertyValues) {
+    try {
+      const res = await fetch(resolveProxyUrl("https://tdwstcontent.telkomsel.com/v2/images/app"));
+      const data = await res.json();
+      loadAssets(data?.data || data);
+      this.assetsLoaded = true;
+    } catch (e) {
+      console.error("Failed to load assets:", e);
+    }
   }
 
   private initApp() {
     this.urlParams = new URLSearchParams(window.location.search);
     const root = this.urlParams.get("root");
-    const path = this.urlParams.get("path") || '';
-    const type = this.urlParams.get('type') || '';
-    const redirectPage = this.urlParams.get('redirectPage') || ''
+    const path = this.urlParams.get("path") || "";
+    const type = this.urlParams.get("type") || "";
+    const redirectPage = this.urlParams.get("redirectPage") || "";
     const layoutParam = this.urlParams.get("layout") || "success-transaction";
     let transactionId = this.urlParams.get("transactionId") || "";
     let refreshBalance = this.urlParams.get("refreshBalance") || "";
@@ -71,7 +86,7 @@ export class AppRoot extends TwLitElement {
 
     const appId = getAppId();
     const sdkLoadFailure = !window.wx && !window.tcsas;
-    const isBindingFlow = layoutParam === 'binding'
+    const isBindingFlow = layoutParam === "binding";
 
     const statusParam = this.urlParams.get("status") || "success";
 
@@ -81,21 +96,29 @@ export class AppRoot extends TwLitElement {
     const shouldRedirect = sdkLoadFailure || hasValidContext;
 
     if (shouldRedirect) {
-      if (appId && type !== 'binding')  {
+      if (appId && type !== "binding") {
         window.wx.miniProgram.reLaunch({
           url: "/pages/finance/index",
         });
       } else {
         const extraParams: Record<string, string> = {};
         this.urlParams.forEach((value, key) => {
-          const coreParams = ["root", "path", "type", "redirectPage", "layout", "transactionId", "refreshBalance"];
+          const coreParams = [
+            "root",
+            "path",
+            "type",
+            "redirectPage",
+            "layout",
+            "transactionId",
+            "refreshBalance",
+          ];
           if (!coreParams.includes(key)) {
             extraParams[key] = value;
           }
         });
 
         const targetUrl = buildExistingMyTelkomselUrl({
-          targetPath: type === 'binding' ? redirectPage :  path,
+          targetPath: type === "binding" ? redirectPage : path,
           transactionId,
           refreshBalance,
           extraParams,
@@ -181,6 +204,10 @@ export class AppRoot extends TwLitElement {
   }
 
   protected render() {
+    // Re-render layout when assets are loaded
+    if (!this.assetsLoaded && this.layout === "none") {
+      return html``;
+    }
     if (this.layout === "binding_success") {
       return html`
         <success-binding-layout @attempt-redirect=${this._handleRedirect}></success-binding-layout>

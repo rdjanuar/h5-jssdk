@@ -3,6 +3,8 @@ import { customElement } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
+import { getAssetUrl } from "../../utils";
+
 const TwLitElement = TW(LitElement);
 
 @customElement("failed-binding-layout")
@@ -22,7 +24,10 @@ export class FailedBindingLayout extends TwLitElement {
         <div class="flex-1 flex flex-col justify-center items-center px-6">
           <div class="mb-4 w-[240px] h-[240px] flex justify-center items-center">
             <img
-              src="https://tdwstcontent.telkomsel.com/s3fs-public/2026-05/something-went-wrong.svg"
+              src=${getAssetUrl(
+                "finance_miniapp_illustration_something_went_wrong",
+                "https://tdwstcontent.telkomsel.com/s3fs-public/2026-05/something-went-wrong.svg",
+              )}
               alt="Failed Illustration"
               width=${240}
               height=${240}

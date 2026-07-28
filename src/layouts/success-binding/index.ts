@@ -4,6 +4,8 @@ import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 import "../../components/ui/lottie-animation";
 
+import { getAssetUrl } from "../../utils";
+
 const TwLitElement = TW(LitElement);
 
 @customElement("success-binding-layout")
@@ -12,17 +14,25 @@ export class SuccessBindingLayout extends TwLitElement {
     super.connectedCallback();
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get("authCode");
-    const paymentMethod = urlParams.get('payment')
+    const state = urlParams.get("state");
+    const paymentMethod = urlParams.get("payment");
 
     if (window.wx?.miniProgram) {
-      window.wx.miniProgram.sendWebviewEvent({
-        scope: "binding",
-        action: "binding_auth_code",
-        payload: {
-          authCode,
-          paymentMethod
-        },
-      });
+      const payload: Record<string, any> = {
+        authCode,
+      };
+
+      if (paymentMethod === "linkaja") {
+        payload.state = state;
+      }
+
+      if (["linkaja", "dana"].includes(paymentMethod)) {
+        window.wx.miniProgram.sendWebviewEvent({
+          scope: "binding",
+          action: "binding_auth_code",
+          payload,
+        });
+      }
     }
   }
 
@@ -43,10 +53,10 @@ export class SuccessBindingLayout extends TwLitElement {
         ? "DANA"
         : rawPayment.charAt(0).toUpperCase() + rawPayment.slice(1);
 
-    const isDev = import.meta.env.DEV;
-    const lottieUrl = isDev
-      ? "/s3fs-public/2026-07/connected-success.json"
-      : "https://tdwstcontent.telkomsel.com/s3fs-public/2026-07/connected-success.json";
+    const lottieUrl = getAssetUrl(
+      "finance_miniapp_lottie_connect_success",
+      "https://tdwstcontent.telkomsel.com/s3fs-public//2026-07/connected-success.json",
+    );
 
     return html`
       <div class="flex flex-col h-screen text-center max-w-[768px] mx-auto bg-white">
