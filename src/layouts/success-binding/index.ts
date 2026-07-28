@@ -15,7 +15,7 @@ export class SuccessBindingLayout extends TwLitElement {
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get("authCode");
     const state = urlParams.get("state");
-    const paymentMethod = urlParams.get("payment");
+    const paymentMethod = urlParams.get("payment") || "";
 
     if (window.wx?.miniProgram) {
       const payload: Record<string, any> = {
