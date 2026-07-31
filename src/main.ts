@@ -153,6 +153,14 @@ export class AppRoot extends TwLitElement {
     const extraParams = e.detail;
     if (!this.redirectPath) return;
 
+    const isFullUrl =
+      this.redirectPath.startsWith("http://") || this.redirectPath.startsWith("https://");
+
+    if (isFullUrl) {
+      window.location.href = this.redirectPath;
+      return;
+    }
+
     // Path validation check
     if (!isValidRedirectPath(this.redirectPath)) {
       const pathname = getCleanPathname(this.redirectPath);
