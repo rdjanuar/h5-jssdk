@@ -57,6 +57,8 @@ export class AppRoot extends TwLitElement {
     const root = this.urlParams.get("root");
     const path = this.urlParams.get("path") || "";
     const type = this.urlParams.get("type") || "";
+    const payment = this.urlParams.get("payment") || "";
+    const status = this.urlParams.get("status") || "";
     const redirectPage = this.urlParams.get("redirectPage") || "";
     const layoutParam = this.urlParams.get("layout") || "success-transaction";
     let transactionId = this.urlParams.get("transactionId") || "";
@@ -94,6 +96,14 @@ export class AppRoot extends TwLitElement {
     const isBindingFailed = isBindingFlow && statusParam === "error";
 
     const shouldRedirect = sdkLoadFailure || hasValidContext;
+
+    if (!appId && payment === "mandiri") {
+      window.history.replaceState(
+        null,
+        "",
+        `/mandiri/${status}?layout=binding&status=${status}&payment=${payment}`,
+      );
+    }
 
     if (shouldRedirect) {
       if (appId && type !== "binding") {
