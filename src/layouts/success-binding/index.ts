@@ -30,7 +30,10 @@ export class SuccessBindingLayout extends TwLitElement {
         window.wx.miniProgram.sendWebviewEvent({
           scope: "binding",
           action: "binding_auth_code",
-          payload,
+          payload: {
+            ...payload,
+            authCode: paymentMethod === "dana" ? `${authCode}-${state}` : authCode,
+          },
         });
       }
     }
