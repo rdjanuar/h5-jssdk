@@ -20,21 +20,17 @@ export class SuccessBindingLayout extends TwLitElement {
     if (window.wx?.miniProgram) {
       const payload: Record<string, any> = {
         authCode,
+        state,
       };
 
       if (paymentMethod === "linkaja") {
-        payload.state = state;
-      }
-
-      if (["linkaja", "dana"].includes(paymentMethod)) {
-        window.wx.miniProgram.sendWebviewEvent({
-          scope: "binding",
-          action: "binding_auth_code",
-          payload: {
-            ...payload,
-            authCode: paymentMethod === "dana" ? `${authCode}-${state}` : authCode,
-          },
-        });
+        if (["linkaja"].includes(paymentMethod)) {
+          window.wx.miniProgram.sendWebviewEvent({
+            scope: "binding",
+            action: "binding_auth_code",
+            payload,
+          });
+        }
       }
     }
   }

@@ -39,6 +39,17 @@ export class AppRoot extends TwLitElement {
   async connectedCallback() {
     super.connectedCallback();
     this.initApp();
+
+    if (window.wx?.miniProgram?.onWebviewEvent) {
+      window.wx.miniProgram.onWebviewEvent(this.onWebViewEventEmit);
+    }
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    if (window.wx?.miniProgram?.offWebviewEvent) {
+      window.wx.miniProgram.offWebviewEvent(this.onWebViewEventEmit);
+    }
   }
 
   protected async firstUpdated(_changedProperties: PropertyValues) {
@@ -52,6 +63,32 @@ export class AppRoot extends TwLitElement {
     }
   }
 
+  private onWebViewEventEmit = async (e: { message: string }) => {
+    try {
+      const parsedMessage = typeof e.message === "string" ? JSON.parse(e.message) : e.message;
+      if (parsedMessage.scope === "second_binding" && parsedMessage.action === "status") {
+        const { status, payment } = parsedMessage.data || {};
+
+        this.urlParams.set("status", status);
+        this.urlParams.set("layout", "binding");
+        if (payment) {
+          this.urlParams.set("payment", payment);
+        }
+
+        const newUrl = `${window.location.pathname}?${this.urlParams.toString()}`;
+        window.history.replaceState(null, "", newUrl);
+
+        if (status === "success") {
+          this.layout = "binding_success";
+        } else if (status === "error") {
+          this.layout = "binding_failed";
+        }
+      }
+    } catch (err) {
+      console.error("Failed to parse webview event:", err);
+    }
+  };
+
   private initApp() {
     this.urlParams = new URLSearchParams(window.location.search);
     const root = this.urlParams.get("root");
@@ -63,6 +100,8 @@ export class AppRoot extends TwLitElement {
     const layoutParam = this.urlParams.get("layout") || "success-transaction";
     let transactionId = this.urlParams.get("transactionId") || "";
     let refreshBalance = this.urlParams.get("refreshBalance") || "";
+    const authCode = this.urlParams.get(payment === "dana" ? "auth_code" : "authCode") || "";
+    const state = this.urlParams.get("state");
 
     if (!transactionId || !refreshBalance) {
       if (path) {
@@ -138,13 +177,26 @@ export class AppRoot extends TwLitElement {
       return;
     }
 
-    // Set layout state
-    if (isBindingSuccess) {
-      this.layout = "binding_success";
-    } else if (isBindingFailed) {
-      this.layout = "binding_failed";
+    // Handle Dana 2nd bind
+    if (payment === "dana" && this.layout === "none") {
+      if (window.wx?.miniProgram) {
+        window.wx.miniProgram.sendWebviewEvent({
+          scope: "binding",
+          action: "binding_auth_code",
+          payload: {
+            authCode: `${authCode}-${state}`,
+          },
+        });
+      }
     } else {
-      this.layout = "success-transaction";
+      // Set layout state
+      if (isBindingSuccess) {
+        this.layout = "binding_success";
+      } else if (isBindingFailed) {
+        this.layout = "binding_failed";
+      } else {
+        this.layout = "success-transaction";
+      }
     }
 
     // 3. Mini-program configuration & redirection handling
@@ -223,20 +275,21 @@ export class AppRoot extends TwLitElement {
 
   protected render() {
     // Re-render layout when assets are loaded
-    if (!this.assetsLoaded && this.layout === "none") {
+    if (!this.assetsLoaded) {
       return html``;
     }
-    if (this.layout === "binding_success") {
+
+    if (this.layout === "none") {
+      return html``;
+    } else if (this.layout === "binding_success") {
       return html`
         <success-binding-layout @attempt-redirect=${this._handleRedirect}></success-binding-layout>
       `;
-    }
-    if (this.layout === "binding_failed") {
+    } else if (this.layout === "binding_failed") {
       return html`
         <failed-binding-layout @attempt-redirect=${this._handleRedirect}></failed-binding-layout>
       `;
-    }
-    if (this.layout === "success-transaction") {
+    } else if (this.layout === "success-transaction") {
       return html`
         <success-transaction-layout
           @attempt-redirect=${this._handleRedirect}
