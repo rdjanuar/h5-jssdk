@@ -213,23 +213,23 @@ export class AppRoot extends TwLitElement {
 
   private _handleRedirect(e: CustomEvent<Record<string, string> | undefined>) {
     const extraParams = e.detail;
-    // if (!this.redirectPath) return;
+    if (!this.redirectPath) return;
 
     const isFullUrl =
       this.redirectPath.startsWith("http://") || this.redirectPath.startsWith("https://");
 
-    // if (isFullUrl) {
-    //   window.location.href = this.redirectPath;
-    //   return;
-    // }
+    if (isFullUrl) {
+      window.location.href = this.redirectPath;
+      return;
+    }
 
     // Path validation check
-    // if (!isValidRedirectPath(this.redirectPath)) {
-    //   const pathname = getCleanPathname(this.redirectPath);
-    //   console.error(`Redirect blocked. Path "${pathname}" is not in the allowed list.`);
-    //   alert(`Security Error: The redirect path is not allowed.`);
-    //   return;
-    // }
+    if (!isValidRedirectPath(this.redirectPath)) {
+      const pathname = getCleanPathname(this.redirectPath);
+      console.error(`Redirect blocked. Path "${pathname}" is not in the allowed list.`);
+      alert(`Security Error: The redirect path is not allowed.`);
+      return;
+    }
 
     const sdk = window.wx || window.tcsas;
     if (true) {
