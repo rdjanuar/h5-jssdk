@@ -298,8 +298,10 @@ export class AppRoot extends TwLitElement {
         <failed-binding-layout @attempt-redirect=${this._handleRedirect}></failed-binding-layout>
       `;
     } else if (this.layout === "success-transaction") {
+      const paymentValue = this.urlParams.get("payment") || "";
       return html`
         <success-transaction-layout
+          .payment=${paymentValue}
           @attempt-redirect=${this._handleRedirect}
         ></success-transaction-layout>
       `;
