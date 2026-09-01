@@ -233,28 +233,36 @@ export class AppRoot extends TwLitElement {
 
     const sdk = window.wx || window.tcsas;
     if (sdk && sdk.miniProgram) {
-      let targetUrl = this.redirectPath;
+      // let targetUrl = this.redirectPath;
+      const [basePath, searchStr] = this.redirectPath.split("?");
+      const finalParams = new URLSearchParams(searchStr || "");
+      this.urlParams.forEach((value, key) => {
+        if (key !== "root" && key !== "path") {
+          finalParams.set(key, value); // Menggunakan .set mencegah duplikasi
+        }
+      });
 
       // Forward query params if extraParams is explicitly provided
       if (extraParams) {
-        const forwardParams: Record<string, string> = {};
-        this.urlParams.forEach((value, key) => {
-          if (key !== "root" && key !== "path") {
-            forwardParams[key] = value;
-          }
+        Object.entries(extraParams).forEach(([key, value]) => {
+          finalParams.set(key, value);
         });
-
-        const mergedParams = { ...forwardParams, ...extraParams };
-
-        if (Object.keys(mergedParams).length > 0) {
-          const separator = targetUrl.includes("?") ? "&" : "?";
-          const queryString = Object.entries(mergedParams)
-            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-            .join("&");
-          targetUrl = `${targetUrl}${separator}${queryString}`;
-        }
       }
 
+        // const mergedParams = { ...forwardParams, ...extraParams };
+
+        // if (Object.keys(mergedParams).length > 0) {
+        //   const separator = targetUrl.includes("?") ? "&" : "?";
+        //   const queryString = Object.entries(mergedParams)
+        //     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        //     .join("&");
+        //   targetUrl = `${targetUrl}${separator}${queryString}`;
+        // }
+      // }
+      
+      const queryString = finalParams.toString();
+      console.log('queryString: ', queryString)
+      const targetUrl = queryString ? `${basePath}?${queryString}` : basePath;
       console.log("Redirecting to mini-program URL:", targetUrl);
 
       sdk.miniProgram.reLaunch({
