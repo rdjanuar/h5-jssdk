@@ -1,5 +1,5 @@
 import { LitElement, html } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
@@ -9,6 +9,7 @@ const TwLitElement = TW(LitElement);
 
 @customElement("success-transaction-layout")
 export class SuccessTransactionLayout extends TwLitElement {
+  @property({ type: String }) payment = "";
   private _handleFinanceClick() {
     this.dispatchEvent(
       new CustomEvent("attempt-redirect", {
@@ -19,10 +20,7 @@ export class SuccessTransactionLayout extends TwLitElement {
   }
 
   private _handleHistoryClick() {
-    const urlParams = new URLSearchParams(window.location.search);
-    console.log("[search params]: ", window.location.search);
-    console.log("[SuccessTransactionLayout] urlParams: ", Object.fromEntries(urlParams));
-    const paymentMethod = urlParams.get("payment") || "";
+    const paymentMethod = this.payment || "";
 
     this.dispatchEvent(
       new CustomEvent("attempt-redirect", {
