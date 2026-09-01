@@ -20,6 +20,8 @@ export class SuccessTransactionLayout extends TwLitElement {
 
   private _handleHistoryClick() {
     const urlParams = new URLSearchParams(window.location.search);
+    console.log("[search params]: ", window.location.search);
+    console.log("[SuccessTransactionLayout] urlParams: ", Object.fromEntries(urlParams));
     const paymentMethod = urlParams.get("payment") || "";
 
     this.dispatchEvent(
