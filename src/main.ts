@@ -213,26 +213,26 @@ export class AppRoot extends TwLitElement {
 
   private _handleRedirect(e: CustomEvent<Record<string, string> | undefined>) {
     const extraParams = e.detail;
-    if (!this.redirectPath) return;
+    // if (!this.redirectPath) return;
 
     const isFullUrl =
       this.redirectPath.startsWith("http://") || this.redirectPath.startsWith("https://");
 
-    if (isFullUrl) {
-      window.location.href = this.redirectPath;
-      return;
-    }
+    // if (isFullUrl) {
+    //   window.location.href = this.redirectPath;
+    //   return;
+    // }
 
     // Path validation check
-    if (!isValidRedirectPath(this.redirectPath)) {
-      const pathname = getCleanPathname(this.redirectPath);
-      console.error(`Redirect blocked. Path "${pathname}" is not in the allowed list.`);
-      alert(`Security Error: The redirect path is not allowed.`);
-      return;
-    }
+    // if (!isValidRedirectPath(this.redirectPath)) {
+    //   const pathname = getCleanPathname(this.redirectPath);
+    //   console.error(`Redirect blocked. Path "${pathname}" is not in the allowed list.`);
+    //   alert(`Security Error: The redirect path is not allowed.`);
+    //   return;
+    // }
 
     const sdk = window.wx || window.tcsas;
-    if (sdk && sdk.miniProgram) {
+    if (true) {
       // let targetUrl = this.redirectPath;
       const [basePath, searchStr] = this.redirectPath.split("?");
       const finalParams = new URLSearchParams(searchStr || "");
@@ -249,16 +249,16 @@ export class AppRoot extends TwLitElement {
         });
       }
 
-        // const mergedParams = { ...forwardParams, ...extraParams };
+      const ignoredParamsMap: Record<string, string[]> = {
+        "binding_success": ["status"],
+        "binding_failed": [],
+        "success-transaction": [],
+      };
 
-        // if (Object.keys(mergedParams).length > 0) {
-        //   const separator = targetUrl.includes("?") ? "&" : "?";
-        //   const queryString = Object.entries(mergedParams)
-        //     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-        //     .join("&");
-        //   targetUrl = `${targetUrl}${separator}${queryString}`;
-        // }
-      // }
+      const paramsToIgnore = ignoredParamsMap[this.layout] || [];
+      paramsToIgnore.forEach((paramKey) => {
+        finalParams.delete(paramKey);
+      });
       
       const queryString = finalParams.toString();
       console.log('queryString: ', queryString)
