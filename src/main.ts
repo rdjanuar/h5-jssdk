@@ -232,7 +232,7 @@ export class AppRoot extends TwLitElement {
     }
 
     const sdk = window.wx || window.tcsas;
-    if (true) {
+    if (sdk && sdk.miniProgram) {
       // let targetUrl = this.redirectPath;
       const [basePath, searchStr] = this.redirectPath.split("?");
       const finalParams = new URLSearchParams(searchStr || "");
@@ -251,7 +251,7 @@ export class AppRoot extends TwLitElement {
 
       const ignoredParamsMap: Record<string, string[]> = {
         "binding_success": ["status"],
-        "binding_failed": [],
+        "binding_failed": ["status"],
         "success-transaction": [],
       };
 
