@@ -249,16 +249,16 @@ export class AppRoot extends TwLitElement {
         });
       }
 
-        // const mergedParams = { ...forwardParams, ...extraParams };
+      const ignoredParamsMap: Record<string, string[]> = {
+        "binding_success": ["status"],
+        "binding_failed": ["status"],
+        "success-transaction": [],
+      };
 
-        // if (Object.keys(mergedParams).length > 0) {
-        //   const separator = targetUrl.includes("?") ? "&" : "?";
-        //   const queryString = Object.entries(mergedParams)
-        //     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-        //     .join("&");
-        //   targetUrl = `${targetUrl}${separator}${queryString}`;
-        // }
-      // }
+      const paramsToIgnore = ignoredParamsMap[this.layout] || [];
+      paramsToIgnore.forEach((paramKey) => {
+        finalParams.delete(paramKey);
+      });
       
       const queryString = finalParams.toString();
       console.log('queryString: ', queryString)
