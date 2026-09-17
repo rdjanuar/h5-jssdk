@@ -60,6 +60,8 @@ function resolve(dict: Record<string, string> | undefined, key: string, opts: TO
 
 export function t(key: string, options?: string | TOptions): string {
   const opts = parseOptions(options);
-  const dict = getDictionary(getLang(opts.lang));
+  const lang = getLang(opts.lang);
+  const dict = getDictionary(lang);
+
   return resolve(dict, key, opts);
 }
