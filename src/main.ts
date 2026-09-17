@@ -1,5 +1,5 @@
 import "./styles/main.css";
-import { LitElement, html, type PropertyValues } from "lit";
+import { LitElement, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { TW } from "./mixins/tailwind-integration";
 import "./layouts/success-transaction";
@@ -37,27 +37,26 @@ export class AppRoot extends TwLitElement {
 
   async connectedCallback() {
     super.connectedCallback();
-    this.initApp();
 
     if (window.wx?.miniProgram?.onWebviewEvent) {
       window.wx.miniProgram.onWebviewEvent(this.onWebViewEventEmit);
     }
-  }
 
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    if (window.wx?.miniProgram?.offWebviewEvent) {
-      window.wx.miniProgram.offWebviewEvent(this.onWebViewEventEmit);
-    }
-  }
-
-  protected async firstUpdated(_changedProperties: PropertyValues) {
     try {
       await fetchDictionary();
     } catch (e) {
       console.error("Failed to load assets:", e);
     } finally {
       this.assetsLoaded = true;
+    }
+
+    this.initApp();
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    if (window.wx?.miniProgram?.offWebviewEvent) {
+      window.wx.miniProgram.offWebviewEvent(this.onWebViewEventEmit);
     }
   }
 
