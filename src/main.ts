@@ -12,8 +12,7 @@ import {
   buildExistingMyTelkomselUrl,
   isValidRedirectPath,
   getCleanPathname,
-  resolveProxyUrl,
-  loadAssets,
+  fetchDictionary,
 } from "./utils";
 
 // Global types for TCMPP JSSDK
@@ -54,12 +53,11 @@ export class AppRoot extends TwLitElement {
 
   protected async firstUpdated(_changedProperties: PropertyValues) {
     try {
-      const res = await fetch(resolveProxyUrl("https://tdwstcontent.telkomsel.com/v2/images/app"));
-      const data = await res.json();
-      loadAssets(data?.data || data);
-      this.assetsLoaded = true;
+      await fetchDictionary();
     } catch (e) {
       console.error("Failed to load assets:", e);
+    } finally {
+      this.assetsLoaded = true;
     }
   }
 
@@ -250,8 +248,8 @@ export class AppRoot extends TwLitElement {
       }
 
       const ignoredParamsMap: Record<string, string[]> = {
-        "binding_success": ["status"],
-        "binding_failed": ["status"],
+        binding_success: ["status"],
+        binding_failed: ["status"],
         "success-transaction": [],
       };
 
@@ -259,9 +257,9 @@ export class AppRoot extends TwLitElement {
       paramsToIgnore.forEach((paramKey) => {
         finalParams.delete(paramKey);
       });
-      
+
       const queryString = finalParams.toString();
-      console.log('queryString: ', queryString)
+      console.log("queryString: ", queryString);
       const targetUrl = queryString ? `${basePath}?${queryString}` : basePath;
       console.log("Redirecting to mini-program URL:", targetUrl);
 
