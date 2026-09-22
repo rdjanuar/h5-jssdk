@@ -88,7 +88,6 @@ export class AppRoot extends TwLitElement {
 
   private initApp() {
     this.urlParams = new URLSearchParams(window.location.search);
-    const root = this.urlParams.get("root");
     const path = this.urlParams.get("path") || "";
     const type = this.urlParams.get("type") || "";
     const payment = this.urlParams.get("payment") || "";
@@ -197,7 +196,7 @@ export class AppRoot extends TwLitElement {
     }
 
     // 3. Mini-program configuration & redirection handling
-    if (root === "miniapp" && path) {
+    if (path) {
       console.log("Loading TCMPP JSSDK...");
 
       let decoded = decodeURIComponent(path);
