@@ -195,11 +195,12 @@ export class AppRoot extends TwLitElement {
       }
     }
 
-    // 3. Mini-program configuration & redirection handling
-    if (path) {
+    const _path = this.layout !== "success-transaction" ? (redirectPage ?? path) : path;
+
+    if (_path) {
       console.log("Loading TCMPP JSSDK...");
 
-      let decoded = decodeURIComponent(path);
+      let decoded = decodeURIComponent(_path);
       if (decoded.startsWith('"') && decoded.endsWith('"')) {
         decoded = decoded.slice(1, -1);
       }
