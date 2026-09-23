@@ -91,7 +91,6 @@ export class AppRoot extends TwLitElement {
 
   private initApp() {
     this.urlParams = new URLSearchParams(window.location.search);
-    const root = this.urlParams.get("root");
     const path = this.urlParams.get("path") || "";
     const type = this.urlParams.get("type") || "";
     const payment = this.urlParams.get("payment") || "";
@@ -199,11 +198,13 @@ export class AppRoot extends TwLitElement {
       }
     }
 
+    const _path = this.layout !== "success-transaction" ? (redirectPage ?? path) : path;
+
     // 3. Mini-program configuration & redirection handling
-    if (root === "miniapp" && path) {
+    if (_path) {
       console.log("Loading TCMPP JSSDK...");
 
-      let decoded = decodeURIComponent(path);
+      let decoded = decodeURIComponent(_path);
       if (decoded.startsWith('"') && decoded.endsWith('"')) {
         decoded = decoded.slice(1, -1);
       }
@@ -250,8 +251,8 @@ export class AppRoot extends TwLitElement {
       }
 
       const ignoredParamsMap: Record<string, string[]> = {
-        "binding_success": ["status"],
-        "binding_failed": ["status"],
+        binding_success: ["status"],
+        binding_failed: ["status"],
         "success-transaction": [],
       };
 
@@ -259,9 +260,9 @@ export class AppRoot extends TwLitElement {
       paramsToIgnore.forEach((paramKey) => {
         finalParams.delete(paramKey);
       });
-      
+
       const queryString = finalParams.toString();
-      console.log('queryString: ', queryString)
+      console.log("queryString: ", queryString);
       const targetUrl = queryString ? `${basePath}?${queryString}` : basePath;
       console.log("Redirecting to mini-program URL:", targetUrl);
 
