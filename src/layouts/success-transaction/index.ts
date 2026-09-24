@@ -4,6 +4,7 @@ import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
 import { getAssetUrl } from "../../utils";
+import { t } from "../../utils/t";
 
 const TwLitElement = TW(LitElement);
 
@@ -46,13 +47,11 @@ export class SuccessTransactionLayout extends TwLitElement {
             )}
             alt="Success Icon"
           />
-          <h1 class="text-secondary text-[1rem] font-semibold mb-[1rem]">Transaksi Selesai</h1>
+          <h1 class="text-secondary text-[1rem] font-semibold mb-[1rem]">
+            ${t("finance_miniapp_static_page_success_transaction_title")}
+          </h1>
           <p class="text-primary text-sm font-normal">
-            Status pembayaran dapat dicek
-            <br />
-            melalui riwayat transaksi pada
-            <br />
-            layanan pembayaran yang dipilih
+            ${t("finance_miniapp_static_page_success_transaction_description")}
           </p>
         </div>
 
@@ -79,7 +78,7 @@ export class SuccessTransactionLayout extends TwLitElement {
             block
             @click=${this._handleFinanceClick}
           >
-            Kembali ke Keuangan
+            ${t("finance_miniapp_static_page_transaction_cta_dashboard_label")}
           </ui-button>
 
           <ui-button
@@ -89,7 +88,9 @@ export class SuccessTransactionLayout extends TwLitElement {
             block
             @click=${this._handleHistoryClick}
           >
-            <span class="text-[#e30022]">Lihat Riwayat Transaksi</span>
+            <span class="text-[#e30022]">
+              ${t("finance_miniapp_static_page_transaction_cta_history_label")}
+            </span>
           </ui-button>
         </div>
       </div>

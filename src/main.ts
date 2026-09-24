@@ -12,8 +12,7 @@ import {
   buildExistingMyTelkomselUrl,
   isValidRedirectPath,
   getCleanPathname,
-  resolveProxyUrl,
-  loadAssets,
+  fetchDictionary,
 } from "./utils";
 
 // Global types for TCMPP JSSDK
@@ -54,12 +53,11 @@ export class AppRoot extends TwLitElement {
 
   protected async firstUpdated(_changedProperties: PropertyValues) {
     try {
-      const res = await fetch(resolveProxyUrl("https://tdwstcontent.telkomsel.com/v2/images/app"));
-      const data = await res.json();
-      loadAssets(data?.data || data);
-      this.assetsLoaded = true;
+      await fetchDictionary();
     } catch (e) {
       console.error("Failed to load assets:", e);
+    } finally {
+      this.assetsLoaded = true;
     }
   }
 

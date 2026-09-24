@@ -5,6 +5,7 @@ import "../../components/ui/button";
 import "../../components/ui/lottie-animation";
 
 import { getAssetUrl } from "../../utils";
+import { t } from "../../utils/t";
 
 const TwLitElement = TW(LitElement);
 
@@ -69,11 +70,15 @@ export class SuccessBindingLayout extends TwLitElement {
           <div class="mb-4 w-[350px] h-[350px] flex justify-center items-center">
             <lottie-animation src=${lottieUrl} width="350px" height="350px"></lottie-animation>
           </div>
-          <h1 class="text-primary text-base font-semibold mb-2">${paymentName} telah terhubung</h1>
+          <h1 class="text-primary text-base font-semibold mb-2">
+            ${t("finance_miniapp_static_page_success_binding_title", {
+              params: {
+                paymentInfo: paymentName,
+              },
+            })}
+          </h1>
           <p class="text-[#757f90] text-sm leading-relaxed font-normal">
-            Sekarang pembayaran jadi lebih mudah di
-            <br />
-            transaksi berikutnya
+            ${t("finance_miniapp_static_page_success_binding_description")}
           </p>
         </div>
 
@@ -87,7 +92,7 @@ export class SuccessBindingLayout extends TwLitElement {
             block
             @click=${this._handleFinanceClick}
           >
-            Kembali ke Keuangan
+            ${t("finance_miniapp_static_page_success_cta_label")}
           </ui-button>
         </div>
       </div>

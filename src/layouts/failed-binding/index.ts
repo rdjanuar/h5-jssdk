@@ -4,6 +4,7 @@ import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
 import { getAssetUrl } from "../../utils";
+import { t } from "../../utils/t";
 
 const TwLitElement = TW(LitElement);
 
@@ -35,11 +36,10 @@ export class FailedBindingLayout extends TwLitElement {
             />
           </div>
           <h1 class="text-primary text-base font-semibold mb-2">
-            Gagal menghubungkan metode pembayaran
+            ${t("finance_miniapp_static_page_failed_binding_title")}
           </h1>
           <p class="text-[#757f90] text-sm leading-relaxed font-normal">
-            Maaf, terjadi kesalahan saat menghubungkan metode pembayaran. Silakan coba lagi dalam
-            beberapa saat.
+            ${t("finance_miniapp_static_page_failed_binding_description")}
           </p>
         </div>
 
@@ -53,7 +53,7 @@ export class FailedBindingLayout extends TwLitElement {
             block
             @click=${this._handleFinanceClick}
           >
-            Kembali ke Keuangan
+            ${t("finance_miniapp_static_page_failed_cta_label")}
           </ui-button>
         </div>
       </div>
