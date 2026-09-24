@@ -196,7 +196,6 @@ export class AppRoot extends TwLitElement {
 
     const _path = this.layout !== "success-transaction" ? redirectPage || path : path;
 
-    // 3. Mini-program configuration & redirection handling
     if (_path) {
       console.log("Loading TCMPP JSSDK...");
 
@@ -211,6 +210,9 @@ export class AppRoot extends TwLitElement {
 
   private _handleRedirect(e: CustomEvent<Record<string, string> | undefined>) {
     const extraParams = e.detail;
+    console.log("redirectPath:", this.redirectPath);
+    console.log("layout:", this.layout);
+    console.log("urlParams:", this.urlParams?.toString());
     if (!this.redirectPath) return;
 
     const isFullUrl =
