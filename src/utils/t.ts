@@ -10,6 +10,7 @@ function normalizeLang(lang: string | undefined): string {
 function getLang(forceLang?: string): string {
   const root = new URLSearchParams(window.location.search);
   const lang = root.get("lang") ?? "id";
+
   return normalizeLang(forceLang || lang);
 }
 

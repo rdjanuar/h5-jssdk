@@ -173,7 +173,6 @@ export class AppRoot extends TwLitElement {
       return;
     }
 
-    // Handle Dana 2nd bind
     if (payment === "dana" && this.layout === "none") {
       if (window.wx?.miniProgram) {
         window.wx.miniProgram.sendWebviewEvent({
@@ -195,7 +194,7 @@ export class AppRoot extends TwLitElement {
       }
     }
 
-    const _path = this.layout !== "success-transaction" ? (redirectPage ?? path) : path;
+    const _path = this.layout !== "success-transaction" ? redirectPage || path : path;
 
     // 3. Mini-program configuration & redirection handling
     if (_path) {
@@ -205,6 +204,7 @@ export class AppRoot extends TwLitElement {
       if (decoded.startsWith('"') && decoded.endsWith('"')) {
         decoded = decoded.slice(1, -1);
       }
+
       this.redirectPath = decoded;
     }
   }
