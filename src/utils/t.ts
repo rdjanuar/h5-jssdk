@@ -1,16 +1,33 @@
+import { getStorage } from ".";
 import { getDictionary } from "./dictionary";
 
 function normalizeLang(lang: string | undefined): string {
-  if (lang === "en") return "en_US";
-  if (["id", "in"].includes(lang!)) return "id_ID";
+  if (lang === "en" || lang === "en_US") return "en_US";
+  if (["id", "in", "id_ID"].includes(lang!)) return "id_ID";
 
   return "id_ID";
 }
 
-function getLang(forceLang?: string): string {
+let storedLang = "id";
+let initPromise: Promise<string> | null = null;
+
+export function initLang(): Promise<string> {
+  if (!initPromise) {
+    initPromise = getStorage<string>("lang")
+      .then((val) => {
+        if (val) storedLang = val;
+        return storedLang;
+      })
+      .catch(() => storedLang);
+  }
+  return initPromise;
+}
+
+export function getLang(forceLang?: string): string {
   const root = new URLSearchParams(window.location.search);
-  const lang = root.get("lang") ?? "id";
-  return normalizeLang(forceLang || lang);
+  const lang = forceLang || root.get("lang") || storedLang;
+
+  return normalizeLang(lang);
 }
 
 function formatCase(text: string, mode?: string): string {

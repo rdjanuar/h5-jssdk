@@ -14,6 +14,7 @@ import {
   getCleanPathname,
   fetchDictionary,
 } from "./utils";
+import { initLang } from "./utils/t";
 
 // Global types for TCMPP JSSDK
 declare global {
@@ -43,7 +44,7 @@ export class AppRoot extends TwLitElement {
     }
 
     try {
-      await fetchDictionary();
+      await Promise.allSettled([fetchDictionary(), initLang()]);
     } catch (e) {
       console.error("Failed to load assets:", e);
     } finally {
