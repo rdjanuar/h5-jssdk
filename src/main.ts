@@ -98,7 +98,7 @@ export class AppRoot extends TwLitElement {
     let transactionId = this.urlParams.get("transactionId") || "";
     let refreshBalance = this.urlParams.get("refreshBalance") || "";
     const authCode = this.urlParams.get(payment === "dana" ? "auth_code" : "authCode") || "";
-    const state = this.urlParams.get("state");
+    // const state = this.urlParams.get("state");
 
     if (!transactionId || !refreshBalance) {
       if (path) {
@@ -180,7 +180,7 @@ export class AppRoot extends TwLitElement {
           scope: "binding",
           action: "binding_auth_code",
           payload: {
-            authCode: `${authCode}-${state}`,
+            authCode,
           },
         });
       }
