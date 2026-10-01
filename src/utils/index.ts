@@ -3,13 +3,66 @@ export function getAppId(): string | null {
   return match ? match[1] : null;
 }
 
-export function getStorage<V>(key: string): Promise<V> {
+function waitForBridge(timeoutMs = 500): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof window !== "undefined" && (window as any).WeixinJSBridge) {
+      return resolve();
+    }
+
+    let resolved = false;
+    const done = () => {
+      if (!resolved) {
+        resolved = true;
+        resolve();
+      }
+    };
+
+    const timer = setTimeout(done, timeoutMs);
+
+    document.addEventListener(
+      "WeixinJSBridgeReady",
+      () => {
+        clearTimeout(timer);
+        done();
+      },
+      { once: true },
+    );
+
+    document.addEventListener(
+      "QQJSBridgeReady",
+      () => {
+        clearTimeout(timer);
+        done();
+      },
+      { once: true },
+    );
+  });
+}
+
+export async function getStorage<V>(key: string, timeoutMs = 20): Promise<V | null> {
   const appId = getAppId();
-  return new Promise((resolve, reject) => {
-    if (appId) {
-      window.wx?.getStorage({
+
+  if (!appId) {
+    return null;
+  }
+
+  await waitForBridge(timeoutMs);
+
+  const sdk = window.wx;
+  if (!sdk?.getStorage) {
+    return null;
+  }
+
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      resolve(null);
+    }, timeoutMs);
+
+    try {
+      sdk.getStorage({
         key,
         success: (res: any) => {
+          clearTimeout(timer);
           try {
             const parsed = typeof res.data === "string" ? JSON.parse(res.data) : res.data;
             resolve(parsed);
@@ -17,12 +70,14 @@ export function getStorage<V>(key: string): Promise<V> {
             resolve(res.data);
           }
         },
-        fail: (err: any) => {
-          reject(err);
+        fail: () => {
+          clearTimeout(timer);
+          resolve(null);
         },
       });
-    } else {
-      reject(new Error("Can not use getStorage outside miniapp Container"));
+    } catch {
+      clearTimeout(timer);
+      resolve(null);
     }
   });
 }
