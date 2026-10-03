@@ -8,7 +8,6 @@ import "./layouts/failed-binding";
 import {
   getAppId,
   isValidTransactionId,
-  isValidRefreshBalance,
   buildExistingMyTelkomselUrl,
   isValidRedirectPath,
   getCleanPathname,
@@ -119,8 +118,7 @@ export class AppRoot extends TwLitElement {
       }
     }
 
-    const hasValidContext =
-      isValidTransactionId(transactionId) && isValidRefreshBalance(refreshBalance);
+    const hasValidContext = isValidTransactionId(transactionId);
 
     const appId = getAppId();
     const sdkLoadFailure = !window.wx && !window.tcsas;
