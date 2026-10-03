@@ -147,22 +147,14 @@ export class AppRoot extends TwLitElement {
       } else {
         const extraParams: Record<string, string> = {};
         this.urlParams.forEach((value, key) => {
-          const coreParams = [
-            "root",
-            "path",
-            "type",
-            "redirectPage",
-            "layout",
-            "transactionId",
-            "refreshBalance",
-          ];
+          const coreParams = ["root", "path", "type", "layout"];
           if (!coreParams.includes(key)) {
             extraParams[key] = value;
           }
         });
 
         const targetUrl = buildExistingMyTelkomselUrl({
-          targetPath: type === "binding" ? redirectPage : path,
+          targetPath: `/app/linkaja/linkage`,
           transactionId,
           refreshBalance,
           extraParams,
