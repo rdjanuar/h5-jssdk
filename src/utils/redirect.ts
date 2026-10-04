@@ -33,11 +33,13 @@ export function buildExistingMyTelkomselUrl({
   refreshBalance: string;
   extraParams?: Record<string, string>;
 }): string {
-  const BASE_DEEPLINK = import.meta.env.VITE_API_DEEPLINK_MY_TELKOMSEL_URL || "my.telkomsel.com";
   const decodedPath = decodeURIComponent(targetPath || "");
   const hasProtocol = decodedPath.startsWith("http://") || decodedPath.startsWith("https://");
+  const CONTENT_URL =
+    decodeURIComponent(import.meta.env.VITE_API_URL_CONTENT_URL) ||
+    "https://tdwtcontent.telkomsel.com";
   try {
-    const urlObj = new URL(hasProtocol ? decodedPath : `https://${BASE_DEEPLINK}${decodedPath}`);
+    const urlObj = new URL(`${CONTENT_URL}${decodedPath}`);
     if (transactionId && !urlObj.searchParams.has("transactionId")) {
       urlObj.searchParams.set("transactionId", transactionId);
     }
