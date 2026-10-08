@@ -89,7 +89,6 @@ export class AppRoot extends TwLitElement {
   private initApp() {
     this.urlParams = new URLSearchParams(window.location.search);
     const path = this.urlParams.get("path") || "";
-    const type = this.urlParams.get("type") || "";
     const payment = this.urlParams.get("payment") || "";
     const status = this.urlParams.get("status") || "";
     const redirectPage = this.urlParams.get("redirectPage") || "";
@@ -121,7 +120,6 @@ export class AppRoot extends TwLitElement {
     const hasValidContext = isValidTransactionId(transactionId);
 
     const appId = getAppId();
-    const sdkLoadFailure = !window.wx && !window.tcsas;
     const isBindingFlow = layoutParam === "binding";
 
     const statusParam = this.urlParams.get("status") || "success";
@@ -129,25 +127,18 @@ export class AppRoot extends TwLitElement {
     const isBindingSuccess = isBindingFlow && statusParam === "success";
     const isBindingFailed = isBindingFlow && statusParam === "error";
 
-    const shouldRedirect = sdkLoadFailure || hasValidContext;
-
-    if (!appId && payment === "mandiri") {
-      window.history.replaceState(
-        null,
-        "",
-        `/mandiri/${status}?layout=binding&status=${status}&payment=${payment}`,
-      );
-    }
-
-    if (shouldRedirect) {
-      if (appId && type !== "binding") {
-        window.wx.miniProgram.reLaunch({
-          url: "/pages/finance/index",
-        });
-      } else {
+    // Handling auto Redirect
+    if (!appId) {
+      if (payment === "mandiri") {
+        window.history.replaceState(
+          null,
+          "",
+          `/mandiri/${status}?layout=binding&status=${status}&payment=${payment}`,
+        );
+      } else if (payment === "linkaja" && hasValidContext) {
         const extraParams: Record<string, string> = {};
         this.urlParams.forEach((value, key) => {
-          const coreParams = ["root", "path", "type", "layout"];
+          const coreParams = ["root", "path", "layout"];
           if (!coreParams.includes(key)) {
             extraParams[key] = value;
           }
@@ -160,8 +151,8 @@ export class AppRoot extends TwLitElement {
           extraParams,
         });
         window.location.href = targetUrl;
+        return;
       }
-      return;
     }
 
     if (payment === "dana" && this.layout === "none") {
