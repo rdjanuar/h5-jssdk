@@ -3,14 +3,37 @@ import { customElement } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
-import { getAssetUrl } from "../../utils";
 import { t } from "../../utils/t";
+import { getAssetUrl, sendTrackingEvent, withPaymentLabel } from "../../utils";
 
 const TwLitElement = TW(LitElement);
 
 @customElement("failed-binding-layout")
 export class FailedBindingLayout extends TwLitElement {
+  private get _payment(): string {
+    return new URLSearchParams(window.location.search).get("payment") || "";
+  }
+
+  private get _screenName(): string {
+    return withPaymentLabel("Failed to connect payment method", this._payment);
+  }
+
+  protected firstUpdated() {
+    sendTrackingEvent({
+      event: "screen_view",
+      event_category: "Finance Activity",
+      screen_name: this._screenName,
+    });
+  }
+
   private _handleFinanceClick() {
+    sendTrackingEvent({
+      event: "button_click",
+      event_category: "Finance Activity",
+      button_name: "Back to Finance",
+      screen_name: this._screenName,
+    });
+
     this.dispatchEvent(
       new CustomEvent("attempt-redirect", {
         bubbles: true,
