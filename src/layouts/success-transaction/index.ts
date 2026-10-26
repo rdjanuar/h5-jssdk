@@ -3,7 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
-import { getAssetUrl } from "../../utils";
+import { getAssetUrl, sendTrackingEvent, withPaymentLabel } from "../../utils";
 import { t } from "../../utils/t";
 
 const TwLitElement = TW(LitElement);
@@ -11,7 +11,27 @@ const TwLitElement = TW(LitElement);
 @customElement("success-transaction-layout")
 export class SuccessTransactionLayout extends TwLitElement {
   @property({ type: String }) payment = "";
+
+  private get _screenName(): string {
+    return withPaymentLabel("Transaction completed", this.payment);
+  }
+
+  protected firstUpdated() {
+    sendTrackingEvent({
+      event: "screen_view",
+      event_category: "Finance Activity",
+      screen_name: this._screenName,
+    });
+  }
+
   private _handleFinanceClick() {
+    sendTrackingEvent({
+      event: "button_click",
+      event_category: "Finance Activity",
+      button_name: "Back to Finance",
+      screen_name: this._screenName,
+    });
+
     this.dispatchEvent(
       new CustomEvent("attempt-redirect", {
         bubbles: true,
@@ -22,6 +42,13 @@ export class SuccessTransactionLayout extends TwLitElement {
 
   private _handleHistoryClick() {
     const paymentMethod = this.payment || "";
+
+    sendTrackingEvent({
+      event: "button_click",
+      event_category: "Finance Activity",
+      button_name: "View Transaction History",
+      screen_name: this._screenName,
+    });
 
     this.dispatchEvent(
       new CustomEvent("attempt-redirect", {

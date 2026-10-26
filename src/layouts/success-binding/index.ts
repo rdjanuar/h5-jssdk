@@ -4,13 +4,24 @@ import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 import "../../components/ui/lottie-animation";
 
-import { getAssetUrl } from "../../utils";
 import { t } from "../../utils/t";
+import { getAssetUrl, getPaymentDisplayName, sendTrackingEvent } from "../../utils";
 
 const TwLitElement = TW(LitElement);
 
 @customElement("success-binding-layout")
 export class SuccessBindingLayout extends TwLitElement {
+  private get _payment(): string {
+    return new URLSearchParams(window.location.search).get("payment") || "";
+  }
+
+  private get _screenName(): string {
+    const paymentName = getPaymentDisplayName(this._payment);
+    return paymentName
+      ? `${paymentName} connected successfully`
+      : "Payment method connected successfully";
+  }
+
   connectedCallback() {
     super.connectedCallback();
     const urlParams = new URLSearchParams(window.location.search);
@@ -36,7 +47,22 @@ export class SuccessBindingLayout extends TwLitElement {
     }
   }
 
+  protected firstUpdated() {
+    sendTrackingEvent({
+      event: "screen_view",
+      event_category: "Finance Activity",
+      screen_name: this._screenName,
+    });
+  }
+
   private _handleFinanceClick() {
+    sendTrackingEvent({
+      event: "button_click",
+      event_category: "Finance Activity",
+      button_name: "Back to Finance",
+      screen_name: this._screenName,
+    });
+
     this.dispatchEvent(
       new CustomEvent("attempt-redirect", {
         bubbles: true,
@@ -46,18 +72,7 @@ export class SuccessBindingLayout extends TwLitElement {
   }
 
   protected render() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const rawPayment = urlParams.get("payment") || "";
-
-    const paymentNameMap: Record<string, string> = {
-      dana: "DANA",
-      ovo: "OVO",
-      blu_dd: "blu by BCA Digital",
-    };
-
-    const paymentName =
-      paymentNameMap[rawPayment.toLowerCase()] ??
-      rawPayment.charAt(0).toUpperCase() + rawPayment.slice(1);
+    const paymentName = getPaymentDisplayName(this._payment);
 
     const lottieUrl = getAssetUrl(
       "finance_miniapp_lottie_connect_success",
