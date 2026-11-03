@@ -19,20 +19,20 @@ export class SuccessTransactionLayout extends TwLitElement {
     );
   }
 
-  private _handleHistoryClick() {
-    const paymentMethod = this.payment || "";
+  // private _handleHistoryClick() {
+  //   const paymentMethod = this.payment || "";
 
-    this.dispatchEvent(
-      new CustomEvent("attempt-redirect", {
-        detail: {
-          action: "history_page",
-          payment_method: paymentMethod,
-        },
-        bubbles: true,
-        composed: true,
-      }),
-    );
-  }
+  //   this.dispatchEvent(
+  //     new CustomEvent("attempt-redirect", {
+  //       detail: {
+  //         action: "history_page",
+  //         payment_method: paymentMethod,
+  //       },
+  //       bubbles: true,
+  //       composed: true,
+  //     }),
+  //   );
+  // }
 
   protected render() {
     return html`
@@ -81,16 +81,6 @@ export class SuccessTransactionLayout extends TwLitElement {
           >
             Kembali ke Keuangan
           </ui-button>
-
-          // <ui-button
-          //   variant="outline"
-          //   color="primary"
-          //   size="lg"
-          //   block
-          //   @click=${this._handleHistoryClick}
-          // >
-          //   <span class="text-[#e30022]">Lihat Riwayat Transaksi</span>
-          // </ui-button>
         </div>
       </div>
     `;
