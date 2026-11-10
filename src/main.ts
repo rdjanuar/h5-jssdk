@@ -201,8 +201,12 @@ export class AppRoot extends TwLitElement {
       this.redirectPath.startsWith("http://") || this.redirectPath.startsWith("https://");
 
     if (isFullUrl) {
-      window.location.href = this.redirectPath;
-      return;
+      if (!getAppId()) {
+        window.location.href = this.redirectPath;
+        return;
+      }
+
+      this.redirectPath = "/pages/finance/index";
     }
 
     // Path validation check
