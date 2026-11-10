@@ -4,7 +4,7 @@
  */
 export function resolveProxyUrl(url: string): string {
   if (!url) return url;
-  if (import.meta.env.DEV) {
+  if (import.meta.env.VITE_APP_ENV === "production") {
     return url
       .replace("https://tdwstcontent.telkomsel.com", "")
       .replace("https://tdwcontent.telkomsel.com", "");
