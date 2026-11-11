@@ -70,7 +70,7 @@ export class SuccessTransactionLayout extends TwLitElement {
             class="mb-[12px] object-contain"
             src=${getAssetUrl(
               "finance_miniapp_icon_transaction_success",
-              "https://tdwcontent.telkomsel.com/minifnp/status-icon.svg",
+              "https://tdwstcontent.telkomsel.com/minifnp/status-icon.svg",
             )}
             alt="Success Icon"
           />
@@ -87,7 +87,7 @@ export class SuccessTransactionLayout extends TwLitElement {
             <img
               src=${getAssetUrl(
                 "finance_miniapp_icon_illustration_success",
-                "https://tdwcontent.telkomsel.com/minifnp/illustration.svg",
+                "https://tdwstcontent.telkomsel.com/minifnp/illustration.svg",
               )}
               alt="Success Illustration"
               class="max-w-full h-auto max-h-[380px] object-contain"
