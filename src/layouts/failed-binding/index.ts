@@ -4,26 +4,19 @@ import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
 import { t } from "../../utils/t";
-import { getAssetUrl, sendTrackingEvent, withPaymentLabel } from "../../utils";
+import { getAssetUrl, sendTrackingEvent } from "../../utils";
 
 const TwLitElement = TW(LitElement);
 
 @customElement("failed-binding-layout")
 export class FailedBindingLayout extends TwLitElement {
   @property({ type: String }) locale = "";
-  private get _payment(): string {
-    return new URLSearchParams(window.location.search).get("payment") || "";
-  }
-
-  private get _screenName(): string {
-    return withPaymentLabel("Failed to connect payment method", this._payment);
-  }
 
   protected firstUpdated() {
     sendTrackingEvent({
       event: "screen_view",
       event_category: "Finance Activity",
-      screen_name: this._screenName,
+      screen_name: t("finance_miniapp_static_page_failed_binding_title"),
     });
   }
 
@@ -31,8 +24,8 @@ export class FailedBindingLayout extends TwLitElement {
     sendTrackingEvent({
       event: "button_click",
       event_category: "Finance Activity",
-      button_name: "Back to Finance",
-      screen_name: this._screenName,
+      button_name: t("finance_miniapp_static_page_failed_cta_label"),
+      screen_name: t("finance_miniapp_static_page_failed_binding_title"),
     });
 
     this.dispatchEvent(

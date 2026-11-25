@@ -16,13 +16,6 @@ export class SuccessBindingLayout extends TwLitElement {
     return new URLSearchParams(window.location.search).get("payment") || "";
   }
 
-  private get _screenName(): string {
-    const paymentName = getPaymentDisplayName(this._payment);
-    return paymentName
-      ? `${paymentName} connected successfully`
-      : "Payment method connected successfully";
-  }
-
   connectedCallback() {
     super.connectedCallback();
     const urlParams = new URLSearchParams(window.location.search);
@@ -52,7 +45,11 @@ export class SuccessBindingLayout extends TwLitElement {
     sendTrackingEvent({
       event: "screen_view",
       event_category: "Finance Activity",
-      screen_name: this._screenName,
+      screen_name: t("finance_miniapp_static_page_success_binding_title", {
+        params: {
+          paymentInfo: getPaymentDisplayName(this._payment),
+        },
+      }),
     });
   }
 
@@ -60,8 +57,12 @@ export class SuccessBindingLayout extends TwLitElement {
     sendTrackingEvent({
       event: "button_click",
       event_category: "Finance Activity",
-      button_name: "Back to Finance",
-      screen_name: this._screenName,
+      button_name: t("finance_miniapp_static_page_success_cta_label"),
+      screen_name: t("finance_miniapp_static_page_success_binding_title", {
+        params: {
+          paymentInfo: getPaymentDisplayName(this._payment),
+        },
+      }),
     });
 
     this.dispatchEvent(
