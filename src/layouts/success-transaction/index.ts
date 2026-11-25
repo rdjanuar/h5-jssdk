@@ -11,6 +11,7 @@ const TwLitElement = TW(LitElement);
 @customElement("success-transaction-layout")
 export class SuccessTransactionLayout extends TwLitElement {
   @property({ type: String }) payment = "";
+  @property({ type: String }) locale = "";
 
   private get _screenName(): string {
     return withPaymentLabel("Transaction completed", this.payment);

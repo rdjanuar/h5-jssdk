@@ -39,7 +39,11 @@ function waitForBridge(timeoutMs = 500): Promise<void> {
   });
 }
 
-export async function getStorage<V>(key: string, timeoutMs = 20): Promise<V | null> {
+export async function getStorage<V>(
+  key: string,
+  timeoutMs = 300,
+  onLateValue?: (value: V) => void,
+): Promise<V | null> {
   const appId = getAppId();
 
   if (!appId) {
@@ -54,7 +58,9 @@ export async function getStorage<V>(key: string, timeoutMs = 20): Promise<V | nu
   }
 
   return new Promise((resolve) => {
+    let settled = false;
     const timer = setTimeout(() => {
+      settled = true;
       resolve(null);
     }, timeoutMs);
 
@@ -63,21 +69,33 @@ export async function getStorage<V>(key: string, timeoutMs = 20): Promise<V | nu
         key,
         success: (res: any) => {
           clearTimeout(timer);
+          let parsed: V;
           try {
-            const parsed = typeof res.data === "string" ? JSON.parse(res.data) : res.data;
-            resolve(parsed);
+            parsed = typeof res.data === "string" ? JSON.parse(res.data) : res.data;
           } catch {
-            resolve(res.data);
+            parsed = res.data;
+          }
+          if (settled) {
+            onLateValue?.(parsed);
+          } else {
+            settled = true;
+            resolve(parsed);
           }
         },
         fail: () => {
           clearTimeout(timer);
-          resolve(null);
+          if (!settled) {
+            settled = true;
+            resolve(null);
+          }
         },
       });
     } catch {
       clearTimeout(timer);
-      resolve(null);
+      if (!settled) {
+        settled = true;
+        resolve(null);
+      }
     }
   });
 }

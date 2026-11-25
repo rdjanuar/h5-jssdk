@@ -1,5 +1,5 @@
 import { LitElement, html } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 import "../../components/ui/lottie-animation";
@@ -11,6 +11,7 @@ const TwLitElement = TW(LitElement);
 
 @customElement("success-binding-layout")
 export class SuccessBindingLayout extends TwLitElement {
+  @property({ type: String }) locale = "";
   private get _payment(): string {
     return new URLSearchParams(window.location.search).get("payment") || "";
   }

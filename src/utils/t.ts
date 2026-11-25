@@ -10,14 +10,33 @@ function normalizeLang(lang: string | undefined): string {
 
 let storedLang = "id";
 let initPromise: Promise<string> | null = null;
+const langListeners = new Set<(lang: string) => void>();
+
+export function onLangChange(listener: (lang: string) => void): () => void {
+  langListeners.add(listener);
+  return () => {
+    langListeners.delete(listener);
+  };
+}
+
+function updateStoredLang(val: string | null | undefined): string {
+  if (val) {
+    const prev = getLang();
+    storedLang = val;
+    const next = getLang();
+    if (next !== prev) {
+      langListeners.forEach((listener) => listener(next));
+    }
+  }
+  return storedLang;
+}
 
 export function initLang(): Promise<string> {
   if (!initPromise) {
-    initPromise = getStorage<string>("lang")
-      .then((val) => {
-        if (val) storedLang = val;
-        return storedLang;
-      })
+    initPromise = getStorage<string>("lang", 300, (lateVal) => {
+      updateStoredLang(lateVal);
+    })
+      .then((val) => updateStoredLang(val))
       .catch(() => storedLang);
   }
   return initPromise;
