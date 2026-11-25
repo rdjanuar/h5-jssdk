@@ -25,14 +25,15 @@ declare global {
 
 const TwLitElement = TW(LitElement);
 
-function decodeRepeatedly(value: string): string {
-  let decoded = value;
-  while (/%[0-9a-f]{2}/i.test(decoded)) {
-    const nextDecoded = decodeURIComponent(decoded);
-    if (nextDecoded === decoded) break;
-    decoded = nextDecoded;
+function parseIncomingParams(search: string): URLSearchParams {
+  const params = new URLSearchParams(search);
+  const entries = [...params.entries()];
+  if (entries.length !== 1 || entries[0][1] !== "" || !entries[0][0].includes("=")) {
+    return params;
   }
-  return decoded;
+
+  const packedParams = new URLSearchParams(entries[0][0]);
+  return packedParams.get("payment")?.toLowerCase() === "ovo" ? packedParams : params;
 }
 
 @customElement("app-root")
@@ -105,16 +106,8 @@ export class AppRoot extends TwLitElement {
   };
 
   private initApp() {
-    this.urlParams = new URLSearchParams(window.location.search);
-    let payment = this.urlParams.get("payment") || "";
-    if (decodeRepeatedly(payment).toLowerCase() === "ovo") {
-      const decodedParams = new URLSearchParams();
-      this.urlParams.forEach((value, key) => {
-        decodedParams.append(key, decodeRepeatedly(value));
-      });
-      this.urlParams = decodedParams;
-      payment = this.urlParams.get("payment") || "";
-    }
+    this.urlParams = parseIncomingParams(window.location.search);
+    const payment = this.urlParams.get("payment") || "";
     const path = this.urlParams.get("path") || "";
     const status = this.urlParams.get("status") || "";
     const redirectPage = this.urlParams.get("redirectPage") || "";
