@@ -25,6 +25,16 @@ declare global {
 
 const TwLitElement = TW(LitElement);
 
+function decodeRepeatedly(value: string): string {
+  let decoded = value;
+  while (/%[0-9a-f]{2}/i.test(decoded)) {
+    const nextDecoded = decodeURIComponent(decoded);
+    if (nextDecoded === decoded) break;
+    decoded = nextDecoded;
+  }
+  return decoded;
+}
+
 @customElement("app-root")
 export class AppRoot extends TwLitElement {
   @state() private layout: "binding_success" | "success-transaction" | "binding_failed" | "none" =
@@ -96,8 +106,16 @@ export class AppRoot extends TwLitElement {
 
   private initApp() {
     this.urlParams = new URLSearchParams(window.location.search);
+    let payment = this.urlParams.get("payment") || "";
+    if (decodeRepeatedly(payment).toLowerCase() === "ovo") {
+      const decodedParams = new URLSearchParams();
+      this.urlParams.forEach((value, key) => {
+        decodedParams.append(key, decodeRepeatedly(value));
+      });
+      this.urlParams = decodedParams;
+      payment = this.urlParams.get("payment") || "";
+    }
     const path = this.urlParams.get("path") || "";
-    const payment = this.urlParams.get("payment") || "";
     const status = this.urlParams.get("status") || "";
     const redirectPage = this.urlParams.get("redirectPage") || "";
     const layoutParam = this.urlParams.get("layout") || "success-transaction";
@@ -109,7 +127,7 @@ export class AppRoot extends TwLitElement {
     if (!transactionId || !refreshBalance) {
       if (path) {
         try {
-          const decodedPath = decodeURIComponent(path);
+          const decodedPath = payment.toLowerCase() === "ovo" ? path : decodeURIComponent(path);
           const pathUrl = new URL(
             decodedPath.includes("://") ? decodedPath : `https://${decodedPath}`,
           );
@@ -189,7 +207,7 @@ export class AppRoot extends TwLitElement {
     if (_path) {
       console.log("Loading TCMPP JSSDK...");
 
-      let decoded = decodeURIComponent(_path);
+      let decoded = payment.toLowerCase() === "ovo" ? _path : decodeURIComponent(_path);
       if (decoded.startsWith('"') && decoded.endsWith('"')) {
         decoded = decoded.slice(1, -1);
       }
