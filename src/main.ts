@@ -26,14 +26,20 @@ declare global {
 const TwLitElement = TW(LitElement);
 
 function parseIncomingParams(search: string): URLSearchParams {
-  const params = new URLSearchParams(search);
-  const entries = [...params.entries()];
-  if (entries.length !== 1 || entries[0][1] !== "" || !entries[0][0].includes("=")) {
-    return params;
-  }
+  const incomingParams = new URLSearchParams(search);
+  const entries = [...incomingParams.entries()];
+  const packedIndex = entries.findIndex(([key, value]) => value === "" && key.includes("="));
+  if (packedIndex === -1) return incomingParams;
 
-  const packedParams = new URLSearchParams(entries[0][0]);
-  return packedParams.get("payment")?.toLowerCase() === "ovo" ? packedParams : params;
+  const packedParams = new URLSearchParams(entries[packedIndex][0]);
+  if (packedParams.get("payment")?.toLowerCase() !== "ovo") return incomingParams;
+
+  entries.forEach(([key, value], index) => {
+    if (index !== packedIndex) {
+      packedParams.append(key, value);
+    }
+  });
+  return packedParams;
 }
 
 @customElement("app-root")
