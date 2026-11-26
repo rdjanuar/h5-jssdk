@@ -1,17 +1,17 @@
 import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 import "../../components/ui/lottie-animation";
 
-import { t } from "../../utils/t";
+import { LangController, t } from "../../utils/t";
 import { getAssetUrl, getPaymentDisplayName, sendTrackingEvent } from "../../utils";
 
 const TwLitElement = TW(LitElement);
 
 @customElement("success-binding-layout")
 export class SuccessBindingLayout extends TwLitElement {
-  @property({ type: String }) locale = "";
+  langController = new LangController(this);
   private get _payment(): string {
     return new URLSearchParams(window.location.search).get("payment") || "";
   }

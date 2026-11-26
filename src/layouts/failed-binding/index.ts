@@ -1,16 +1,16 @@
 import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
-import { t } from "../../utils/t";
+import { LangController, t } from "../../utils/t";
 import { getAssetUrl, sendTrackingEvent } from "../../utils";
 
 const TwLitElement = TW(LitElement);
 
 @customElement("failed-binding-layout")
 export class FailedBindingLayout extends TwLitElement {
-  @property({ type: String }) locale = "";
+  langController = new LangController(this);
 
   protected firstUpdated() {
     sendTrackingEvent({

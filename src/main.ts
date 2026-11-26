@@ -13,7 +13,7 @@ import {
   getCleanPathname,
   fetchDictionary,
 } from "./utils";
-import { getLang, initLang, onLangChange } from "./utils/t";
+import { initLang } from "./utils/t";
 
 // Global types for TCMPP JSSDK
 declare global {
@@ -51,15 +51,9 @@ export class AppRoot extends TwLitElement {
   private urlParams!: URLSearchParams;
 
   @state() private assetsLoaded = false;
-  @state() private locale = getLang();
-  private unsubscribeLang?: () => void;
 
   async connectedCallback() {
     super.connectedCallback();
-
-    this.unsubscribeLang = onLangChange((lang) => {
-      this.locale = lang;
-    });
 
     if (window.wx?.miniProgram?.onWebviewEvent) {
       window.wx.miniProgram.onWebviewEvent(this.onWebViewEventEmit);
@@ -67,7 +61,6 @@ export class AppRoot extends TwLitElement {
 
     try {
       await Promise.allSettled([fetchDictionary(), initLang()]);
-      this.locale = getLang();
     } catch (e) {
       console.error("Failed to load assets:", e);
     } finally {
@@ -79,7 +72,6 @@ export class AppRoot extends TwLitElement {
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    this.unsubscribeLang?.();
     if (window.wx?.miniProgram?.offWebviewEvent) {
       window.wx.miniProgram.offWebviewEvent(this.onWebViewEventEmit);
     }
@@ -302,23 +294,16 @@ export class AppRoot extends TwLitElement {
       return html``;
     } else if (this.layout === "binding_success") {
       return html`
-        <success-binding-layout
-          .locale=${this.locale}
-          @attempt-redirect=${this._handleRedirect}
-        ></success-binding-layout>
+        <success-binding-layout @attempt-redirect=${this._handleRedirect}></success-binding-layout>
       `;
     } else if (this.layout === "binding_failed") {
       return html`
-        <failed-binding-layout
-          .locale=${this.locale}
-          @attempt-redirect=${this._handleRedirect}
-        ></failed-binding-layout>
+        <failed-binding-layout @attempt-redirect=${this._handleRedirect}></failed-binding-layout>
       `;
     } else if (this.layout === "success-transaction") {
       const paymentValue = this.urlParams.get("payment") || "";
       return html`
         <success-transaction-layout
-          .locale=${this.locale}
           .payment=${paymentValue}
           @attempt-redirect=${this._handleRedirect}
         ></success-transaction-layout>

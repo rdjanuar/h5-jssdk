@@ -1,31 +1,45 @@
+import type { ReactiveController, ReactiveControllerHost } from "lit";
 import { getStorage } from ".";
 import { getDictionary } from "./dictionary";
 
-function normalizeLang(lang: string | undefined): string {
-  if (lang === "en" || lang === "en_US") return "en_US";
-  if (["id", "in", "id_ID"].includes(lang!)) return "id_ID";
+function normalizeLang(lang: unknown): string {
+  if (typeof lang !== "string") return "id_ID";
+
+  const normalized = lang.trim().toLowerCase().replace("-", "_");
+  if (normalized === "en" || normalized === "en_us") return "en_US";
+  if (normalized === "id" || normalized === "in" || normalized === "id_id") return "id_ID";
 
   return "id_ID";
 }
 
 let storedLang = "id";
 let initPromise: Promise<string> | null = null;
-const langListeners = new Set<(lang: string) => void>();
+const langHosts = new Set<ReactiveControllerHost>();
 
-export function onLangChange(listener: (lang: string) => void): () => void {
-  langListeners.add(listener);
-  return () => {
-    langListeners.delete(listener);
-  };
+export class LangController implements ReactiveController {
+  private host: ReactiveControllerHost;
+
+  constructor(host: ReactiveControllerHost) {
+    this.host = host;
+    host.addController(this);
+  }
+
+  hostConnected(): void {
+    langHosts.add(this.host);
+  }
+
+  hostDisconnected(): void {
+    langHosts.delete(this.host);
+  }
 }
 
 function updateStoredLang(val: string | null | undefined): string {
-  if (val) {
+  if (typeof val === "string" && val.trim()) {
     const prev = getLang();
     storedLang = val;
     const next = getLang();
     if (next !== prev) {
-      langListeners.forEach((listener) => listener(next));
+      langHosts.forEach((host) => host.requestUpdate());
     }
   }
   return storedLang;

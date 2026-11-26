@@ -4,14 +4,14 @@ import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
 import { getAssetUrl, sendTrackingEvent, withPaymentLabel } from "../../utils";
-import { t } from "../../utils/t";
+import { LangController, t } from "../../utils/t";
 
 const TwLitElement = TW(LitElement);
 
 @customElement("success-transaction-layout")
 export class SuccessTransactionLayout extends TwLitElement {
   @property({ type: String }) payment = "";
-  @property({ type: String }) locale = "";
+  langController = new LangController(this);
 
   private get _screenName(): string {
     return withPaymentLabel("Transaction completed", this.payment);
