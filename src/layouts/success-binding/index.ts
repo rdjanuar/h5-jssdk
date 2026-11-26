@@ -4,15 +4,13 @@ import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 import "../../components/ui/lottie-animation";
 
-import { LangController, t } from "../../utils/t";
+import { t } from "../../utils/t";
 import { getAssetUrl, getPaymentDisplayName, sendTrackingEvent } from "../../utils";
 
 const TwLitElement = TW(LitElement);
 
 @customElement("success-binding-layout")
 export class SuccessBindingLayout extends TwLitElement {
-  langController = new LangController(this);
-
   @property({ type: String }) payment = "";
 
   connectedCallback() {

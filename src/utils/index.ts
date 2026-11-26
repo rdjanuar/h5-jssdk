@@ -7,7 +7,7 @@ export function getAppId(): string | null {
 }
 
 function getSdk() {
-  return window.wx || window.tcsas;
+  return window.wx;
 }
 
 function isBridgeAndSdkReady(): boolean {

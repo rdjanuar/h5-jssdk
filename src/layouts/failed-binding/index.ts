@@ -3,15 +3,13 @@ import { customElement } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
-import { LangController, t } from "../../utils/t";
+import { t } from "../../utils/t";
 import { getAssetUrl, sendTrackingEvent } from "../../utils";
 
 const TwLitElement = TW(LitElement);
 
 @customElement("failed-binding-layout")
 export class FailedBindingLayout extends TwLitElement {
-  langController = new LangController(this);
-
   protected firstUpdated() {
     sendTrackingEvent({
       event: "screen_view",

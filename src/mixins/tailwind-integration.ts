@@ -1,4 +1,5 @@
 import { adoptStyles, type LitElement, unsafeCSS } from "lit";
+import { SignalWatcher } from "@lit-labs/signals";
 import style from "../styles/main.css?inline";
 
 declare global {
@@ -9,7 +10,7 @@ declare global {
 const stylesheet = unsafeCSS(style);
 
 export const TW = <T extends LitMixin>(superClass: T): T =>
-  class extends superClass {
+  class extends SignalWatcher(superClass) {
     connectedCallback() {
       super.connectedCallback();
       if (this.shadowRoot) {

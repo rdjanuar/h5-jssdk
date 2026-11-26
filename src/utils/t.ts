@@ -1,4 +1,4 @@
-import type { ReactiveController, ReactiveControllerHost } from "lit";
+import { signal } from "@lit-labs/signals";
 import { getStorage } from ".";
 import { getDictionary } from "./dictionary";
 import { parseIncomingParams } from "./parse";
@@ -13,37 +13,14 @@ function normalizeLang(lang: unknown): string {
   return "id_ID";
 }
 
-let storedLang = "id";
+export const storedLang = signal("id");
 let initPromise: Promise<string> | null = null;
-const langHosts = new Set<ReactiveControllerHost>();
-
-export class LangController implements ReactiveController {
-  private host: ReactiveControllerHost;
-
-  constructor(host: ReactiveControllerHost) {
-    this.host = host;
-    host.addController(this);
-  }
-
-  hostConnected(): void {
-    langHosts.add(this.host);
-  }
-
-  hostDisconnected(): void {
-    langHosts.delete(this.host);
-  }
-}
 
 function updateStoredLang(val: string | null | undefined): string {
   if (typeof val === "string" && val.trim()) {
-    const prev = getLang();
-    storedLang = val;
-    const next = getLang();
-    if (next !== prev) {
-      langHosts.forEach((host) => host.requestUpdate());
-    }
+    storedLang.set(val);
   }
-  return storedLang;
+  return storedLang.get();
 }
 
 export function initLang(): Promise<string> {
@@ -52,14 +29,14 @@ export function initLang(): Promise<string> {
       updateStoredLang(lateVal);
     })
       .then((val) => updateStoredLang(val))
-      .catch(() => storedLang);
+      .catch(() => storedLang.get());
   }
   return initPromise;
 }
 
 export function getLang(forceLang?: string): string {
   const root = parseIncomingParams(window.location.search);
-  const lang = forceLang || root.get("lang") || storedLang;
+  const lang = forceLang || root.get("lang") || storedLang.get();
 
   return normalizeLang(lang);
 }
