@@ -277,8 +277,12 @@ export class AppRoot extends TwLitElement {
     if (this.layout === "none") {
       return html``;
     } else if (this.layout === "binding_success") {
+      const paymentValue = this.urlParams.get("payment") || "";
       return html`
-        <success-binding-layout @attempt-redirect=${this._handleRedirect}></success-binding-layout>
+        <success-binding-layout
+          .payment=${paymentValue}
+          @attempt-redirect=${this._handleRedirect}
+        ></success-binding-layout>
       `;
     } else if (this.layout === "binding_failed") {
       return html`
