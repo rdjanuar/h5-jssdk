@@ -1,6 +1,7 @@
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 import { getStorage } from ".";
 import { getDictionary } from "./dictionary";
+import { parseIncomingParams } from "./parse";
 
 function normalizeLang(lang: unknown): string {
   if (typeof lang !== "string") return "id_ID";
@@ -57,7 +58,7 @@ export function initLang(): Promise<string> {
 }
 
 export function getLang(forceLang?: string): string {
-  const root = new URLSearchParams(window.location.search);
+  const root = parseIncomingParams(window.location.search);
   const lang = forceLang || root.get("lang") || storedLang;
 
   return normalizeLang(lang);
