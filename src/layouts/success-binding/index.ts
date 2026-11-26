@@ -1,5 +1,5 @@
 import { LitElement, html } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 import "../../components/ui/lottie-animation";
@@ -12,14 +12,13 @@ const TwLitElement = TW(LitElement);
 @customElement("success-binding-layout")
 export class SuccessBindingLayout extends TwLitElement {
   langController = new LangController(this);
-  private get _payment(): string {
-    return new URLSearchParams(window.location.search).get("payment") || "";
-  }
+
+  @property({ type: String }) payment = "";
 
   connectedCallback() {
     super.connectedCallback();
     const urlParams = new URLSearchParams(window.location.search);
-    const paymentMethod = urlParams.get("payment") || "";
+    const paymentMethod = this.payment;
     const authCode = urlParams.get(paymentMethod === "dana" ? "auth_code" : "authCode") || "";
     const state = urlParams.get("state");
 
@@ -47,7 +46,7 @@ export class SuccessBindingLayout extends TwLitElement {
       event_category: "Finance Activity",
       screen_name: t("finance_miniapp_static_page_success_binding_title", {
         params: {
-          paymentInfo: getPaymentDisplayName(this._payment),
+          paymentInfo: getPaymentDisplayName(this.payment),
         },
       }),
     });
@@ -60,7 +59,7 @@ export class SuccessBindingLayout extends TwLitElement {
       button_name: t("finance_miniapp_static_page_success_cta_label"),
       screen_name: t("finance_miniapp_static_page_success_binding_title", {
         params: {
-          paymentInfo: getPaymentDisplayName(this._payment),
+          paymentInfo: getPaymentDisplayName(this.payment),
         },
       }),
     });
@@ -74,7 +73,7 @@ export class SuccessBindingLayout extends TwLitElement {
   }
 
   protected render() {
-    const paymentName = getPaymentDisplayName(this._payment);
+    const paymentName = getPaymentDisplayName(this.payment);
 
     const lottieUrl = getAssetUrl(
       "finance_miniapp_lottie_connect_success",
