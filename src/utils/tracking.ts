@@ -1,30 +1,37 @@
-const FIREBASE_PLUGIN = "firebaseLogEvent";
+type TrackingParams = Record<string, unknown>;
 
-export type TrackingEvent = {
-  event: "screen_view" | "button_click";
-  event_category: string;
-  screen_name: string;
-  button_name?: string;
-};
-
-export function sendTrackingEvent(event: TrackingEvent): void {
+export function trackingEvent(eventName: string, params: TrackingParams = {}) {
   try {
-    const sdk = window.wx || window.tcsas;
-    if (typeof sdk?.invokeNativePlugin !== "function") return;
+    const wx = window.wx;
+    if (!wx) return;
 
-    sdk.invokeNativePlugin({
-      api_name: FIREBASE_PLUGIN,
-      data: {
-        eventName: event.event,
-        params: {
-          event_category: event.event_category,
-          screen_name: event.screen_name,
-          ...(event.button_name ? { button_name: event.button_name } : {}),
-        },
+    const data = { eventName, params };
+
+    if (typeof wx.reportEvent === "function") {
+      const device = wx.getDeviceInfo?.() ?? {};
+      const system = wx.getSystemInfoSync?.() ?? {};
+
+      wx.reportEvent("trpy", {
+        ...data,
+        information_device: { ...device, ...system },
+      });
+    }
+
+    if (typeof wx.invokeNativePlugin !== "function") return;
+
+    wx.invokeNativePlugin({
+      api_name: "firebaseLogEvent",
+      data,
+      success: () => {
+        try {
+          console.log("INFO", `Success firebaseLogEvent: ${eventName}`);
+        } catch {
+          // Ignore diagnostic logger failures.
+        }
       },
-      fail: (err: unknown) => console.warn("[tracking] firebaseLogEvent failed", event.event, err),
+      fail: (err: unknown) => console.log("firebaseLogEvent failed", err),
     });
-  } catch (e) {
-    console.warn("[tracking] firebaseLogEvent threw", event.event, e);
+  } catch (err) {
+    console.log("Tracking exception", err);
   }
 }

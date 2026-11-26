@@ -4,23 +4,21 @@ import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
 import { t } from "../../utils/t";
-import { getAssetUrl, sendTrackingEvent } from "../../utils";
+import { getAssetUrl, trackingEvent } from "../../utils";
 
 const TwLitElement = TW(LitElement);
 
 @customElement("failed-binding-layout")
 export class FailedBindingLayout extends TwLitElement {
   protected firstUpdated() {
-    sendTrackingEvent({
-      event: "screen_view",
+    trackingEvent("screen_view", {
       event_category: "Finance Activity",
       screen_name: t("finance_miniapp_static_page_failed_binding_title"),
     });
   }
 
   private _handleFinanceClick() {
-    sendTrackingEvent({
-      event: "button_click",
+    trackingEvent("button_click", {
       event_category: "Finance Activity",
       button_name: t("finance_miniapp_static_page_failed_cta_label"),
       screen_name: t("finance_miniapp_static_page_failed_binding_title"),

@@ -5,7 +5,7 @@ import "../../components/ui/button";
 import "../../components/ui/lottie-animation";
 
 import { t } from "../../utils/t";
-import { getAssetUrl, getPaymentDisplayName, sendTrackingEvent } from "../../utils";
+import { getAssetUrl, getPaymentDisplayName, trackingEvent } from "../../utils";
 
 const TwLitElement = TW(LitElement);
 
@@ -39,8 +39,7 @@ export class SuccessBindingLayout extends TwLitElement {
   }
 
   protected firstUpdated() {
-    sendTrackingEvent({
-      event: "screen_view",
+    trackingEvent("screen_view", {
       event_category: "Finance Activity",
       screen_name: t("finance_miniapp_static_page_success_binding_title", {
         params: {
@@ -51,8 +50,7 @@ export class SuccessBindingLayout extends TwLitElement {
   }
 
   private _handleFinanceClick() {
-    sendTrackingEvent({
-      event: "button_click",
+    trackingEvent("button_click", {
       event_category: "Finance Activity",
       button_name: t("finance_miniapp_static_page_success_cta_label"),
       screen_name: t("finance_miniapp_static_page_success_binding_title", {

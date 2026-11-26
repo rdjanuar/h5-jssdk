@@ -3,7 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 import { TW } from "../../mixins/tailwind-integration";
 import "../../components/ui/button";
 
-import { getAssetUrl, sendTrackingEvent, withPaymentLabel } from "../../utils";
+import { getAssetUrl, trackingEvent, withPaymentLabel } from "../../utils";
 import { t } from "../../utils/t";
 
 const TwLitElement = TW(LitElement);
@@ -17,7 +17,7 @@ export class SuccessTransactionLayout extends TwLitElement {
   }
 
   protected firstUpdated() {
-    sendTrackingEvent({
+    trackingEvent("screen_view", {
       event: "screen_view",
       event_category: "Finance Activity",
       screen_name: this._screenName,
@@ -25,10 +25,9 @@ export class SuccessTransactionLayout extends TwLitElement {
   }
 
   private _handleFinanceClick() {
-    sendTrackingEvent({
-      event: "button_click",
+    trackingEvent("button_click", {
       event_category: "Finance Activity",
-      button_name: "Back to Finance",
+      button_name: t("finance_miniapp_static_page_transaction_cta_dashboard_label"),
       screen_name: this._screenName,
     });
 
@@ -43,10 +42,9 @@ export class SuccessTransactionLayout extends TwLitElement {
   private _handleHistoryClick() {
     const paymentMethod = this.payment || "";
 
-    sendTrackingEvent({
-      event: "button_click",
+    trackingEvent("button_click", {
       event_category: "Finance Activity",
-      button_name: "View Transaction History",
+      button_name: t("finance_miniapp_static_page_transaction_cta_history_label"),
       screen_name: this._screenName,
     });
 
