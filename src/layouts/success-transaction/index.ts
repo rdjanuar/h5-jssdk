@@ -13,12 +13,14 @@ export class SuccessTransactionLayout extends TwLitElement {
   @property({ type: String }) payment = "";
 
   private get _screenName(): string {
-    return withPaymentLabel("Transaction completed", this.payment);
+    return withPaymentLabel(
+      t("finance_miniapp_static_page_success_transaction_title"),
+      this.payment,
+    );
   }
 
   protected firstUpdated() {
     trackingEvent("screen_view", {
-      event: "screen_view",
       event_category: "Finance Activity",
       screen_name: this._screenName,
     });
